@@ -1,5 +1,66 @@
 Ola Mundo!!!
 
+Como instalar o Git no CentOS 8
+O Git é um sistema de controle de versão distribuído que está sendo usado pela maioria das equipes de software atualmente. Ele permite que você acompanhe suas alterações no código, volte para os estágios anteriores, crie ramificações e colabore com seus colegas desenvolvedores.
+
+O Git foi desenvolvido originalmente por Linus Torvalds , o criador do kernel do Linux.
+A maneira mais fácil e recomendada de instalar o Git é instalá-lo usando a ferramenta de gerenciamento de pacotes yum .
+
+Instalando o Git com o Yum
+Execute o seguinte comando
+$ sudo yum install git
+
+Verifique a instalação digitando o comando abaixo, que imprimirá a versão do Git:
+$ git --version
+Dever retornar
+git version 2.23.0
+
+Instalando o Git a partir da Fonte
+Comece instalando as dependências necessárias para criar o Git no CentOS:
+
+$ sudo yum groupinstall "Development Tools"
+$ sudo yum install curl-devel expat-devel gettext-devel openssl-devel  perl-CPAN perl-devel zlib-devel
+
+Quando a instalação estiver concluída, abra o navegador, visite o https://github.com/git/git/releases Git no GitHub e copie o URL do link de versão mais recente que termina em .tar.gz :
+Baixe a versão mais atualizada
+
+Vamos baixar o código-fonte do Git no /usr/src , que é o local comum para colocar os arquivos de origem.
+cd /usr/src/ 
+
+Faça o download do arquivo tar.gz como git.tar.gz usando o link que você copiou anteriormente:
+$ sudo wget https://github.com/git/git/archive/v2.23.0.tar.gz -O git.tar.gz
+
+Em seguida, extraia o tarball e mude para o diretório de origem git digitando:
+$ sudo tar -xf git.tar.gz
+$ cd git-*
+
+Execute os dois comandos a seguir para compilar e instalar o Git no seu sistema CentOS:
+$ sudo make prefix=/usr/local all
+$ sudo make prefix=/usr/local install
+
+Digite git --version para verificar a instalação:
+$ git --version 
+
+Caso desejar atualizar para uma versão mais recente, faça o download do arquivo morto e repita o processo de compilação.
+
+Configurando o Git
+Agora que você tem o Git instalado em sua máquina CentOS, é uma boa ideia configurar suas informações pessoais. Os seguintes comandos definirão seu nome de confirmação e endereço de email:
+
+$ git config --global user.name "Your Name"
+$ git config --global user.email "youremail@yourdomain.com"
+
+Para confirmar que você definiu suas informações corretamente no Git, digite
+git config --list
+Retorna:
+user.name=Your Name
+user.email=youremail@yourdomain.com
+
+As definições de configuração são armazenadas no arquivo ~/.gitconfig :
+~ / .gitconfig
+ [user] name = Your Name email = youremail@yourdomain.com
+
+
+===================================================================================
 Gerando Conexão git
 
 Após a instalação o diretorio do Git foi movido para 
@@ -20,6 +81,15 @@ $ git init
 Para adicionar no repositório Git
 $ git add <nome_arquivo>
 $ git add git_conect
+ou também pode ser usado o comando
+$ git add .
 
 Caso tenha alguma alteração no arquivo
 $ git diff
+
+Gerando o COMMIT
+$ git commit -m "Primeira versão documento para conexão GIT"
+
+Após executar o Commit, será necessário executar 
+$ git push
+Irá solicitar Usuário e senha do git
