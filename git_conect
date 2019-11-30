@@ -1,0 +1,25 @@
+Ola Mundo!!!
+
+Gerando Conexão git
+
+Após a instalação o diretorio do Git foi movido para 
+$ mv /opt/git
+pois esse será o diretorio de todas as aplicações instaladas linux
+
+
+Inicializando um Repositório num Diretório Existente
+Se tens um diretório de projeto que atualmente não está sob o controle da versão e desejas começar a controlá-lo com o Git, primeiro precisas de ir para o diretório deste projeto Se nunca fizeste isto, parece um pouco diferente, dependendo do sistema que tu estás a executar:
+
+para o Linux:
+$ cd /Documentos/
+-- Esse diretorio foi o escolhido para gera o clone do Git
+
+Depois digite 
+$ git init
+
+Para adicionar no repositório Git
+$ git add <nome_arquivo>
+$ git add git_conect
+
+Caso tenha alguma alteração no arquivo
+$ git diff
