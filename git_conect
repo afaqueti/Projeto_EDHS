@@ -74,9 +74,12 @@ Se tens um diretório de projeto que atualmente não está sob o controle da ver
 para o Linux:
 $ cd /Documentos/
 -- Esse diretorio foi o escolhido para gera o clone do Git
+Exutar o seguinte comando
 
 Depois digite 
 $ git init
+
+
 
 Para adicionar no repositório Git
 $ git add <nome_arquivo>
@@ -93,3 +96,10 @@ $ git commit -m "Primeira versão documento para conexão GIT"
 Após executar o Commit, será necessário executar 
 $ git push
 Irá solicitar Usuário e senha do git
+© 2019 GitHub, Inc.
+Terms
+Privacy
+Security
+Status
+Help
+Contact GitHub
