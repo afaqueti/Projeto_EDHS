@@ -72,12 +72,16 @@ Inicializando um Repositório num Diretório Existente
 Se tens um diretório de projeto que atualmente não está sob o controle da versão e desejas começar a controlá-lo com o Git, primeiro precisas de ir para o diretório deste projeto Se nunca fizeste isto, parece um pouco diferente, dependendo do sistema que tu estás a executar:
 
 para o Linux:
-$ cd /Documentos/
 -- Esse diretorio foi o escolhido para gera o clone do Git
-Exutar o seguinte comando
-
+$ cd /Documentos/
 Depois digite 
 $ git init
+Monte o clone para o diretório escolhido
+$ git clone <URL da pasta ou projeto>
+
+Exutar o seguinte processo:
+1 - Criar uma pasta local para conter os arquivos que estão sendo alterados
+2 - Copiar o arquivo alterado para pasta clonada.
 
 
 
