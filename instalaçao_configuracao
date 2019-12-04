@@ -137,5 +137,49 @@ Esse procedimento e extremamente improtante para não causar erros na instalaç�
 
 ================================================================
 
+Instalação do Apache Hadoop
+
+Por padrão temos dois usuários Gerados, 
+
+Root que é padrão do SO
+Usuário Aluno que foi gerado na instalação do sistema operacional
+Será necessário gera outro para instalção do Haddop
+
+Comando id
+$ id
+Retorna qual usuário esta conectado
+
+Boas Praticas é gerar um usuário expecifio para instalação do Apache Hadoop, importante informa que esse procedimento não se torna obrigatório.
+
+Criando usuário 
+$ sudo adduser hadoop
+Definindo a senha do usuário gerado
+$ sudo passwd hadoop
+
+Após gerar o usuário e difinir a senha é necessário efetuar LOGOUT no sistema para validar (LOGIN) acesso com o usuário hadoop gerado. Processo para garantir padrão de seguraça.
+
+Nesse momento o usuário hadoop é um usuário comum, portanto devemos adicionar previlegios de sudo para usuário hadoop.
+
+Segue comando:
+$ su
+Acesso com root para atualizar o seguinte arquivo.
+# gedit /etc/sudoers
+
+root	ALL=(ALL) 	ALL
+aluno	ALL=(ALL)	ALL
+hadoop	ALL=(ALL)	ALL 
+
+informar todos os previlegios para os devidos usuários
+
+O hadoop deve ser baixo do site oficial https://hadoop.apache.org
+
+Clique no botão Download >> clicar na ultima versão
+Baixe os Bynarios o site ira direcionar para pagina de mirror tar_gz
+link HTTP selecionar os links abaixo
+
+
+continuar a instalação a partir 3/6
+
+
 
 
