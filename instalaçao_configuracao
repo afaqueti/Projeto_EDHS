@@ -1,0 +1,141 @@
+Procedimento após instalação do SO Linux Centos8
+Criar usuário com permissão de root
+Usuário aluno criado
+
+================================================================
+Instalação de itilitarios do SO:
+
+$ sudo yum intall bsip2 unzip rsync wget net-tools
+
+Instalção dos pacotes para futuros acessos verificaçaõ de redes, dowload via linha de comando e deconpactaçao de arquivos
+
+================================================================
+Instalando e configurando SSH
+
+É necessário a instalação do Protocolo SSH devido a necessidade de comunicação do CLUSTER. Se tiver 5 maquina sendo uma o namenode e 5 datanode, acomunicação dos servidores é executada via protocolo SSH.
+Procedimento para garantir mais segurança. O mesmo é usado para procedimento PseudoDistribuido. Portanto uma maquina tanto para namenode como para datanode.
+
+$ sudo yum install openssh-server openssh-clients
+
+Os dois pacotes serão instalados sendo um para SERVIDOR e outro para CLIENTES. Geralmente o Centos ja vem com os pacotes SSH instalado. Caso não os pacotes serão instalados.
+
+Após a instalção é necessário habilitar o serviço SSH
+
+$ sudo systemctl enable sshd
+SSHD - Para rodar o serviço em background
+
+$ sudo systemctl start sshd
+
+Caso queira checar somente usar o status
+
+$ sudo systemctl status sshd
+Executando o comando acima o SO irá retornar a informação de:
+Active: active(running) destaque
+
+Após procedimento acima é necessário executar configuração no arquivos sshd_config. Para acessar o arquivo segue o comando:
+
+$ sudo gedit /etc/ssh/sshd_config
+localizar a porta 22
+#Port 22
+Necessário tirar o sustenido ou Hashitag
+Port 22
+OBS: Essa porta 22 é padrão, pois em produção a porta pode ser alterada.
+
+Executar o mesmo procedimento para 
+#ListenAddress 0.0.0.0
+Necessário tirar o sustenido ou Hashtag
+
+Também localizar no mesmo aquivo 
+#PermitRootLogin yes
+Tirar o sustenido e alterar de yes para no
+PermitRootLogin no
+
+Procedimento para garantir a segurança de conexão do linux
+#LoginGraceTime 2m
+PermitRootLogin no
+#StrictModes yes
+#MaxAuthTries 6
+#MaxSessions 10
+AllowUsers aluno hadoop
+
+$ sudo systemctl restart sshd
+$ sudo systemctl status sshd
+Executando o comando acima o SO irá retornar a informação de:
+Active: active(running) destaque
+
+
+================================================================
+Instalando e Configurando Maquina Virtual JAVA JDK
+O haddop rodar atraves de uma JVM, portanto sem o Java instalado o Hadoop não irá funcionar, portanto todas as maquina do cluster devem conter o java e o SSH.
+
+$ java -version
+Ira retornar a versão do java instalado.
+
+Não usar o OpenJDK - Pois a oracle não atualiza mais esse pacote, pois existe um grupo de pessoas que atualiza, portanto não é recomendado usar o OpenJDK e sim o ORACLEJDK.
+
+ORACLEJDK se tornou padrão.
+
+Então será necessário remover o OpenJDK.
+Segue comando:
+
+$ sudo yum list java*
+Tudo PAcotes que tiver java sera listado
+irá retornar varias versões difrentes.
+
+Para remover segue comando:
+$ sudo yum -y remove java*
+
+$ java -version
+Após remover não irá aparecer nenhuma versão, pois foram todas removidas
+
+Após o procedimento acima devemos baixar o oraclejdk direto do site da oracle.
+pesquisa por java jdk download
+
+Devemos baixar o jdk8 tem todo o ecossitema hadoop essa versão é a mais completa, pois as versões 11 e 12 não esta completa com todos os pacotes necessários para instalção do hadoop.
+
+Não usar Demos and Samples. É necessário baixar o JDK kit
+
+Baixar a versão para Linu 64bit tar_gz
+Importa saber que é necessário uma conta no site da oracle para baixar o arquivo
+O arquivo será baixado na pasta Download do linux
+
+Siga até a pasta
+$ cd Downloads
+Estando na pasta Downloads descompactar o arquivo
+$ tar -xzf jdk-8u212-linux-x64.tar.gz
+aplica ls na pasta para confirmar a descompactação, dever existir um arquivo chamado
+jdk1.8.0.212
+
+
+Para instalação do JDK serpa usado um padrão, portanto vamos mover o arquivo para pasta /opt/
+$ sudo mv jdk1.8.0.212/ /opt/jdk
+
+Confirma se o arquivo foi movido
+$ cd /opt/
+$ ls
+volta para o diretorio home $ cd ~
+
+Configura as variaveis de ambientes
+home/aluno 
+$ ls -la
+Ira listar todos os arquivos do diretorio home, isso retornar todos os aquivos ocultos.
+$ gedit .bashrc
+
+informar as seguintes variaveis
+# JDK
+export JAVA_HOME=/opt/jdk
+export PATH=$PATH:$JAVA_HOME/bin
+
+Para atualizar eler as variaveis de ambientes:
+$ source .bashrc
+
+confirmar a versão
+$ java -version
+irá retornar a nova versão instalada (java version "1.8.0_212")
+
+Esse procedimento e extremamente improtante para não causar erros na instalação do hadoop e seu ecossistema.
+
+================================================================
+
+
+
