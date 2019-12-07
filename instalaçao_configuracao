@@ -577,11 +577,11 @@ Esses arquivos listado acima são jobs pre-desenvolvidos de modelos MapReduce
 Com o procedimento de job MarReduce termos um grande volume de dados e extrair um conjunto de informações reduzidas.
 
 segue comando:
-$ hadoop jar /opt/hadoop/share/hadoop/maapreduce/hadoop-mapreduce-exemples-3.2.0_jar grep /user/hadoop output 'dfs[a-z]+'
+
+$ hadoop jar /opt/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.2.1.jar grep /user/hadoop output 'dfs[a-z.]+'
 
 Trauzindo o comando;
-1 - hadoop jar /opt/hadoop/share/hadoop/maapreduce/hadoop-mapreduce-exemples-3.2.0_jar
-    executar a extensão java a partir do diretorio exemplos
+1 - hadoop jar /opt/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.2.1.jar grep /user/hadoop output 'dfs[a-z.]+'
 
 2 - grep /user/hadoop output 'dfs[a-z]+'
     pegar os arquivos dentro do diretorio e crie um diretorio (output) e tenha palavras que comece com dfs e que tenha a e z
@@ -645,4 +645,170 @@ start-dfs.sh
 ========================================================================
 Configurando YARN
 ========================================================================
+
+O YARN é um software para gerenciar jobs processar,monitorar e gerenciar, pois podemos considerar o YARN como o terceiro software do ecosistema. 
+
+HDFS - Para armazenamento distribuido
+MAPREDUCE - Para processamento distribuido
+YARN - Para gerenciamento distribuido
+
+Primeiramente será necessário configurar os parametros de dois arquivos.
+
+1 - mapred-site.xml
+
+2 - yarn-site.xml
+
+Acesse primeiro o mapred-site.xml com o seguinte comando.
+$ gedit /opt/hadoop/etc/hadoop/mapred-site.xml 
+
+Copie os parametros conforme documentação.
+
+<configuration>
+    <property>
+        <name>mapreduce.framework.name</name>
+        <value>yarn</value>
+    </property>
+    <property>
+        <name>mapreduce.application.classpath</name>
+        <value>$HADOOP_MAPRED_HOME/share/hadoop/mapreduce/*:$HADOOP_MAPRED_HOME/share/hadoop/mapreduce/lib/*</value>
+    </property>
+</configuration>
+
+Deposi o segundo yarn-site.xml como o seguinte arquivo
+$ gedit /opt/hadoop/etc/hadoop/yarn-site.xml
+
+<configuration>
+    <property>
+        <name>yarn.nodemanager.aux-services</name>
+        <value>mapreduce_shuffle</value>
+    </property>
+    <property>
+        <name>yarn.nodemanager.env-whitelist</name>                    <value>JAVA_HOME,HADOOP_COMMON_HOME,HADOOP_HDFS_HOME,HADOOP_CONF_DIR,CLASSPATH_PREPEND_DISTCACHE,HADOOP_YARN_HOME,HADOOP_MAPRED_HOME</value>
+    </property>
+</configuration>
+
+=============================================================================================
+
+ficar atento no arquivo yarn-site.xml, existe erros no intervalo dos parametros do arquivo original. Mantenha o arquivo exatamente da forma como est'abaixo:
+
+
+<?xml version="1.0"?>
+<!--
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License. See accompanying LICENSE file.
+-->
+
+
+<!-- Site specific YARN configuration properties -->
+
+<configuration>
+    <property>
+        <name>yarn.nodemanager.aux-services</name>
+        <value>mapreduce_shuffle</value>
+    </property>
+    <property>
+        <name>yarn.nodemanager.env-whitelist</name>                    <value>JAVA_HOME,HADOOP_COMMON_HOME,HADOOP_HDFS_HOME,HADOOP_CONF_DIR,CLASSPATH_PREPEND_DISTCACHE,HADOOP_YARN_HOME,HADOOP_MAPRED_HOME</value>
+    </property>
+</configuration>
+=============================================================================================
+
+
+Depois de parametrizar todos os devidos parametros, será necessário inicializar os serviços
+
+execute:
+================================================
+$ start-yarn.sh 
+================================================
+
+Ante de iniciar o serviço tinhamos a seguinte liste, depois de iniciar o yarn vamos ter:
+$ jps
+4930 Jps
+4515 DataNode
+4727 SecondaryNameNode
+4383 NameNode
+
+Depois de iniciar o yarn:
+5600 Jps
+4515 DataNode
+4727 SecondaryNameNode
+5226 NodeManager
+5102 ResourceManager
+4383 NameNode
+
+Nota-se que após iniciar o yarn já temos os seguintes serviços;
+Starting resourcemanager
+Starting nodemanagers
+
+Caso apresente erros, será necessário verificar nos logs. Como acessar os logs:
+$ cd /opt/hadoop/logs
+
+segue os arquivos de logs;
+
+[hadoop@dataserver ~]$ cd /opt/hadoop/logs/
+[hadoop@dataserver logs]$ ls -la
+total 1648
+drwxrwxr-x.  3 hadoop hadoop   4096 dez  7 18:33 .
+drwxr-xr-x. 10 hadoop hadoop    161 nov 26 00:38 ..
+-rw-rw-r--.  1 hadoop hadoop 299105 dez  7 18:37 hadoop-hadoop-datanode-dataserver.log
+-rw-rw-r--.  1 hadoop hadoop    703 dez  7 18:30 hadoop-hadoop-datanode-dataserver.out
+-rw-rw-r--.  1 hadoop hadoop    703 dez  7 00:29 hadoop-hadoop-datanode-dataserver.out.1
+-rw-rw-r--.  1 hadoop hadoop    703 dez  1 00:45 hadoop-hadoop-datanode-dataserver.out.2
+-rw-rw-r--.  1 hadoop hadoop    703 nov 28 00:35 hadoop-hadoop-datanode-dataserver.out.3
+-rw-rw-r--.  1 hadoop hadoop    703 nov 26 23:31 hadoop-hadoop-datanode-dataserver.out.4
+-rw-rw-r--.  1 hadoop hadoop    703 nov 26 01:04 hadoop-hadoop-datanode-dataserver.out.5
+-rw-rw-r--.  1 hadoop hadoop 427750 dez  7 18:32 hadoop-hadoop-namenode-dataserver.log
+-rw-rw-r--.  1 hadoop hadoop    874 dez  7 18:30 hadoop-hadoop-namenode-dataserver.out
+-rw-rw-r--.  1 hadoop hadoop   6427 dez  7 00:37 hadoop-hadoop-namenode-dataserver.out.1
+-rw-rw-r--.  1 hadoop hadoop    874 dez  1 02:00 hadoop-hadoop-namenode-dataserver.out.2
+-rw-rw-r--.  1 hadoop hadoop    874 dez  1 00:45 hadoop-hadoop-namenode-dataserver.out.3
+-rw-rw-r--.  1 hadoop hadoop    874 nov 28 00:35 hadoop-hadoop-namenode-dataserver.out.4
+-rw-rw-r--.  1 hadoop hadoop   6427 nov 26 23:45 hadoop-hadoop-namenode-dataserver.out.5
+-rw-rw-r--.  1 hadoop hadoop 331703 dez  7 18:33 hadoop-hadoop-nodemanager-dataserver.log
+-rw-rw-r--.  1 hadoop hadoop   2275 dez  7 18:33 hadoop-hadoop-nodemanager-dataserver.out
+-rw-rw-r--.  1 hadoop hadoop   2282 dez  1 00:46 hadoop-hadoop-nodemanager-dataserver.out.1
+-rw-rw-r--.  1 hadoop hadoop 215013 dez  7 18:33 hadoop-hadoop-resourcemanager-dataserver.log
+-rw-rw-r--.  1 hadoop hadoop   2291 dez  7 18:33 hadoop-hadoop-resourcemanager-dataserver.out
+-rw-rw-r--.  1 hadoop hadoop   2298 dez  1 00:46 hadoop-hadoop-resourcemanager-dataserver.out.1
+-rw-rw-r--.  1 hadoop hadoop 276000 dez  7 18:32 hadoop-hadoop-secondarynamenode-dataserver.log
+-rw-rw-r--.  1 hadoop hadoop    703 dez  7 18:30 hadoop-hadoop-secondarynamenode-dataserver.out
+-rw-rw-r--.  1 hadoop hadoop    703 dez  7 00:29 hadoop-hadoop-secondarynamenode-dataserver.out.1
+-rw-rw-r--.  1 hadoop hadoop    703 dez  1 00:45 hadoop-hadoop-secondarynamenode-dataserver.out.2
+-rw-rw-r--.  1 hadoop hadoop    703 nov 28 00:35 hadoop-hadoop-secondarynamenode-dataserver.out.3
+-rw-rw-r--.  1 hadoop hadoop    703 nov 26 23:31 hadoop-hadoop-secondarynamenode-dataserver.out.4
+-rw-rw-r--.  1 hadoop hadoop    703 nov 26 01:04 hadoop-hadoop-secondarynamenode-dataserver.out.5
+-rw-rw-r--.  1 hadoop hadoop      0 nov 26 00:38 SecurityAuth-hadoop.audit
+-rw-r--r--.  1 root   root        0 nov 26 00:53 SecurityAuth-root.audit
+drwxr-xr-x.  2 hadoop hadoop      6 dez  1 04:17 userlogs
+
+Executado os passos acima podemos visitar o seguinte endereço:
+localhost:8088
+
+iremos acessar o gerenciador YARN
+
+Agora vamos executar o mesmo job que foi executado anteriormente. Para isso devemos alterar o diretorio que será salvos os aquivos do MapReduce.
+
+Portanto não será mais o output e sim o output4
+
+hadoop jar /opt/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.2.1.jar grep /user/hadoop output4 'dfs[a-z.]+'
+
+Esse processo pode gerar erro conforme o short do gerenciador YARN.
+Então vamos gera um diretorio somente com os xml's.
+
+Devemos copiar todos os xml's para um novo diretorio:
+$ hdfs dfs -put /opt/hadoop/etc/hadoop/*.xml input
+
+Esse comando iré copiar todos os xml's para o diretorio input, portanto agora teremos os daddos que necessitamos para rodar o mapreduce, pois existe somente arquivos e não diretorios na pasta de leitura do mapreduce.
+
+
+
+
 
