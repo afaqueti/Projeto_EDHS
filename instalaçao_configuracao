@@ -177,8 +177,182 @@ Clique no botão Download >> clicar na ultima versão
 Baixe os Bynarios o site ira direcionar para pagina de mirror tar_gz
 link HTTP selecionar os links abaixo
 
+Acesse a pasta Downloads
+$ cd Downloads
+Descompactar aruqivo
+$ tar -xvf  hadoop-3.2.0.tar-gz
 
-continuar a instalação a partir 3/6
+OBS: Hadoop não tem instalador, para instalar é necessário baixar o arquivo, descompactar.
+
+Após descompactar devemos mover os arquivo para /opt ou qualquer outro diretório de preferencia. Por padrão todas as aplicações serão movidas para o diretorio /opt
+
+Portanto dentro do diretorio Downlods mova para o diretorio de origem.
+
+$ sudo mv hadoop-3.2.0 /opt/hadoop
+
+Após esse procedimento verifique se o diretorio foi movido corretamente dentro do diretorio /opt/hadoop
+
+volte para o diretorio /home
+$ cd ~
+liste o diretorio home para localizar o arquivo .bashrc
+$ ls -la
+
+Esse procedimento irá ser necessário novamente para configurar as variaveis de ambientes
+pois devemos informar onde está localizado o diretorio de instalçao do hadoop, que fica dentro do diretorio /opt/hadoop
+
+$ gedit .bashrc
+
+# JDK
+export JAVA_HOME=/opt/jdk
+export PATH=$PATH:$JAVA_HOME/bin
+
+# Hadoop
+export HADOOP_HOME=/opt/hadoop
+export HADOOP_INSTALL=$HADOOP_HOME
+export HADOOP_COMMON_HOME=$HADOOP_HOME
+export HADOOP_MARED_HOME=$HADOOP_HOME
+export HADOOP_HDFS_HOME=$HADOOP_HOME
+export YARN_HOME=$HADOOP_HOME
+export PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin
+
+agora devemos validar o arquivo
+$ source .bashrc
+
+Verificando 
+$ java -version
+deverá informar a versão do oracle
+
+$ hadoop version
+deve retornar a seguinte informação 
+hadoop 3.2.xxxxxx
+
+Agora devemos configurar o hadoop para modo pseudo distribuido como se fosse um cluster de uma maquina só.
+
+Acesse a documentção http://hadoop.apache.org
+va em documentação:
+
+Finalidade
+Este documento descreve como instalar e configurar uma instalação do Hadoop de nó único, para que você possa executar rapidamente operações simples usando o Hadoop MapReduce e o HDFS (Hadoop Distributed File System).
+
+Pré-requisitos
+Plataformas Suportadas
+O GNU / Linux é suportado como uma plataforma de desenvolvimento e produção. O Hadoop foi demonstrado em clusters GNU / Linux com 2000 nós.
+
+O Windows também é uma plataforma suportada, mas as etapas a seguir são apenas para Linux. Para configurar o Hadoop no Windows, consulte a página da wiki .
+
+Software Necessário
+O software necessário para Linux inclui:
+
+Java ™ deve estar instalado. As versões Java recomendadas são descritas em HadoopJavaVersions .
+
+O ssh deve estar instalado e o sshd deve estar em execução para usar os scripts do Hadoop que gerenciam os daemons remotos do Hadoop se os scripts opcionais de início e parada forem usados. Além disso, recomenda-se que o pdsh também seja instalado para melhor gerenciamento de recursos ssh.
+
+Configuração
+Use o seguinte:
+Acesso o diretorio /opt/hadoop
+$ cd /opt/hadoop
+portanto dentro do diretoio de instalçao do hadoop teremos o diretorio etc/
+
+$ cd etc/
+dentro do diretorio etc/ teremos o diretorio hadoop
+$ cd /etc
+
+segue exemplo:
+
+[hadoop@dataserver /]$ cd /opt/hadoop/
+[hadoop@dataserver hadoop]$ ls -la
+total 188
+drwxr-xr-x. 10 hadoop hadoop    161 nov 26 00:38 .
+drwxr-xr-x.  8 root   root      112 dez  1 01:48 ..
+drwxr-xr-x.  2 hadoop hadoop    203 set 10 13:51 bin
+drwxr-xr-x.  3 hadoop hadoop     20 set 10 12:58 etc
+drwxr-xr-x.  2 hadoop hadoop    106 set 10 13:51 include
+drwxr-xr-x.  3 hadoop hadoop     20 set 10 13:51 lib
+drwxr-xr-x.  4 hadoop hadoop   4096 set 10 13:51 libexec
+-rw-rw-r--.  1 hadoop hadoop 150569 set 10 11:35 LICENSE.txt
+drwxrwxr-x.  3 hadoop hadoop   4096 dez  1 02:00 logs
+-rw-rw-r--.  1 hadoop hadoop  22125 set 10 11:35 NOTICE.txt
+-rw-rw-r--.  1 hadoop hadoop   1361 set 10 11:35 README.txt
+drwxr-xr-x.  3 hadoop hadoop   4096 set 10 12:58 sbin
+drwxr-xr-x.  4 hadoop hadoop     31 set 10 14:11 share
+[hadoop@dataserver hadoop]$ cd etc
+[hadoop@dataserver etc]$ ls -la
+total 4
+drwxr-xr-x.  3 hadoop hadoop   20 set 10 12:58 .
+drwxr-xr-x. 10 hadoop hadoop  161 nov 26 00:38 ..
+drwxr-xr-x.  3 hadoop hadoop 4096 dez  1 00:44 hadoop
+[hadoop@dataserver etc]$ 
+
+estando dentro do diretório do hadoop
+[hadoop@dataserver etc]$ cd hadoop
+
+segue exemplo:
+
+[hadoop@dataserver hadoop]$ ls
+capacity-scheduler.xml            httpfs-log4j.properties     mapred-site.xml
+configuration.xsl                 httpfs-signature.secret     shellprofile.d
+container-executor.cfg            httpfs-site.xml             ssl-client.xml.example
+core-site.xml                     kms-acls.xml                ssl-server.xml.example
+hadoop-env.cmd                    kms-env.sh                  user_ec_policies.xml.template
+hadoop-env.sh                     kms-log4j.properties        workers
+hadoop-metrics2.properties        kms-site.xml                yarn-env.cmd
+hadoop-policy.xml                 log4j.properties            yarn-env.sh
+hadoop-user-functions.sh.example  mapred-env.cmd              yarnservice-log4j.properties
+hdfs-site.xml                     mapred-env.sh               yarn-site.xml
+httpfs-env.sh                     mapred-queues.xml.template
+[hadoop@dataserver hadoop]$ ^C
+[hadoop@dataserver hadoop]$ 
+
+[hadoop@dataserver hadoop]$ pwd
+/opt/hadoop/etc/hadoop
+[hadoop@dataserver hadoop]$
+
+dentro dediretorio teremo diversos arquivos, portanto vamos configurar o modelo pseudo distribuido.
+$ gedit core-site.xml
+
+Inicialmente o arquivo está com os paramentros de configuração vazio.
+Exemplo:
+
+<configuration>
+    
+</configuration>
+
+Devemos preencher comforme segue abaixo:
+Para preencher devemos acessar o navegar junto a documantação hadoop.apache.org
+e copiar os seguintes parametros, conforme o modelo pseudo distribuido.
+
+Com esses parametros estamos indicando qual é o caminho do HDFS
+
+- sistema de aquivo padrão que é: s.defaultFS
+- no caminho: hdfs://localhost:9000 será o ponto de entrada do sistema HDFS, portanto os serviço dserão gerenciados pelo namenode e datanode que são os doi serviços principais.
+
+ <configuration>
+    <property>
+        <name>fs.defaultFS</name>
+        <value>hdfs://localhost:9000</value>
+    </property>
+</configuration>
+
+Proximo arquivo será :
+
+$ gedit hdfs-site.xml
+devemos executar o mesmo procedimento acima, copiando as seguintes parametrizações:
+
+- replicador para cada bloco fs.replication
+Portanto caso for executado em maquinas diferente teriamos que informa a quantidade de blocos a serem replicados.
+Seve como se fosse um backup, perdendo um bloco teremos mais doi para recuperar caso tenha sido configura 3 blocos.
+
+Em caso de pseudo distribuido iremos usar somente um bloco. no caso da perda do bloco não teremos replica, pois estamos apontando somente um bloco.
+
+
+<configuration>
+    <property>
+        <name>dfs.replication</name>
+        <value>1</value>
+    </property>
+</configuration>
+
+continua configurando o SSH se senha 6/6
 
 
 
