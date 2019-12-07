@@ -352,8 +352,297 @@ Em caso de pseudo distribuido iremos usar somente um bloco. no caso da perda do 
     </property>
 </configuration>
 
-continua configurando o SSH se senha 6/6
+========================================================================
+Configurando SSH sem a senha
+Procedimento usado para configurar a conexão dos Cluster via protocolo SSH.
+
+cahver privada = Namenode
+
+cahve publica = DataNode
+
+Inicie o procedimento dentro do /home/haddop para geração do par de chaves
+
+Comando para gerar a chave (gerado de chave)
+$ ssh keygen t rsa
+retorna a chave dentro do diretorio (/home/hadoop/ .ssh/id_rsa)
+depois o sistema ira perguntar se necessário uma camada de segurança
+Enter passphrase (empty for no passphrase) - Não é necessário pressiona enter.
+Na sequncia o sistema ira perguntar para confirmar, então pressiona ENTER.
+
+Com esse procedimento a chave será criada.
+
+Para confirmar 
+$cd .ssh/
+
+
+hadoop@dataserver ~]$ cd .ssh/
+[hadoop@dataserver .ssh]$ ls -la
+total 20
+drwx------.  2 hadoop hadoop   80 nov 26 00:15 .
+drwx------. 17 hadoop hadoop 4096 dez  6 22:57 ..
+-rw-------.  1 hadoop hadoop  399 nov 26 00:10 authorized_keys
+-rw-------.  1 hadoop hadoop 1823 nov 26 00:05 id_rsa
+-rw-r--r--.  1 hadoop hadoop  399 nov 26 00:05 id_rsa.pub
+-rw-r--r--.  1 hadoop hadoop  353 nov 26 00:43 known_hosts
+[hadoop@dataserver .ssh]$ 
+
+id_rsa é a chave privada
+id_rsa.pub é a chave publica
+
+achave publica dever ser copiada para o arquivo authorized_keys
+com o seguinte comando:
+volte para o diretorio home
+$ cd ~
+$ cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+
+(>>) comando seguinifica gravar
+
+[hadoop@dataserver ~]$ cd .ssh/
+[hadoop@dataserver .ssh]$ ls -la
+total 20
+drwx------.  2 hadoop hadoop   80 nov 26 00:15 .
+drwx------. 17 hadoop hadoop 4096 dez  6 22:57 ..
+-rw-------.  1 hadoop hadoop  399 nov 26 00:10 authorized_keys
+-rw-------.  1 hadoop hadoop 1823 nov 26 00:05 id_rsa
+-rw-r--r--.  1 hadoop hadoop  399 nov 26 00:05 id_rsa.pub
+-rw-r--r--.  1 hadoop hadoop  353 nov 26 00:43 known_hosts
+[hadoop@dataserver .ssh]$ 
+
+Percebemos que o arquivo authorized_keys foi gravado
+Abrindo o arquivo
+$ gedit authorized_keys
+irá retorno o seguuinte arquivo:
+
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC6MWWiuLZDnZ53ibYQIokScWDdrnTcHBRxa3FUve3W8THh2e1ZzFDzmpjDeH+7HsOHacJVvEXL4QSAW9lYlUmUgm2uA0yz4t4cf1xSKvKfvel8bzU1G6owUdHVcCth7uaneWR4Sywv7tao57l0fIphc0RisWy3q2MDYpcKeblD2EO202PhVq/JVG03lVfhXiCOj8wzZn931R3OJNkaWsyzh90PahY+e9ZpAMW8RCrObO7zrK5PWI07qdYMXwEtMcynT+26aZZPMspi+dE9BmMKEMsOwZC/udyImpysT0hLtQ3n7uq97KADIZ3XMD0mYr0GhkHw87k3bhJhpGJhY76P hadoop@dataserver
+
+OBS:
+a chave está ciptografada
+Como estamo usando um módelo pseudo distribuido tanto a chave piravada como a chave publica fica em um arquivo unico. Caso foi executado para modelo de cluster teriamos todas as chaves conforme seu devido cluster.
+
+Também será necessário mudar a permissão do arquivo.
+$ chmod 600 authorized_keys
+-rw-------.  1 hadoop hadoop  399 nov 26 00:10 authorized_keys
+A partir desse momento somento o dono do arquivo pode ler e escrever dentro desse aquivo.
+
+Volte para o diretorio home 
+$ cd ~
+
+Testar a configuração
+$ ssh localhost
+Sistema irá solictar confirmação para efetivar a conexão ao localhost(127.0.0.1) presscione (yes)
+
+Mesmo assim pediu a senha, stá errado, pois não pode socilitar a senha.
+
+Para configurar a senha é necessário executar o seguinte comando:
+$ sudo gedit /etc/ssh/sshd_config
+irá pedir a senha 
+
+Caso não abra o aquivo devido a previlegios abra como #ROOT
+
+# sudo gedit /etc/ssh/sshd_config
+
+consequatemente o arquivo será aberto
+
+Na linha AllowUsers incluir o usuário (hadoop), pois configuramos somente o usuário aluno.
+
+#LoginGraceTime 2m
+PermitRootLogin no
+#StrictModes yes
+#MaxAuthTries 6
+#MaxSessions 10
+AllowUsers aluno hadoop
+
+Após executar as configurações no ssh_config, será necessário restart no serviço ssh.
+
+$ sudo systemctl restart sshd
+Após esse procedimento o serviço estar inicializado e não deve pedir a senha
+
+Todo o procedimento acimo é referente a usar o ssh, pois não se trata de configuração de hadoop.
+
+execute
+$ exit 
+Para sair  (logout)
+
+========================================================================
+
+Inicialmente para será necessário formatar o HDFS
+$ hdfs namenode -format
+
+sitema irá prepara o sistema de arquivos HDFS, e uma camda adicional sobra o sitema operacional linux
+
+Após executar a formatção, procure pela informação;
+Storege directory /tmp/hadoop/dfs/name has been sucessfully formatted:
+
+A partir desse momento devemos iniciar o HDFS
+$ start-dfs.sh
+
+[root@dataserver hadoop]# su hadoop
+[hadoop@dataserver ~]$ pwd
+/home/hadoop
+[hadoop@dataserver ~]$ start-dfs.sh
+Starting namenodes on [localhost]
+localhost: /opt/hadoop/libexec/hadoop-functions.sh: linha 1848: /tmp/hadoop-hadoop-namenode.pid: Permissão negada
+localhost: ERROR:  Cannot write namenode pid /tmp/hadoop-hadoop-namenode.pid.
+Starting datanodes
+Starting secondary namenodes [dataserver]
+
+$ jps
+para visualizar os serviços que estão rodando.
+
+[hadoop@dataserver ~]$ jps
+5952 SecondaryNameNode
+6225 Jps
+5622 NameNode
+5750 DataNode
+
+
+acesse via browser;
+http://localhost:9870
+Possibilta gerenciar os namenode e datanode via browser
+
+aogra vamos criar alguma coisa no hadoop
+$ hdfs dfs -ls /
+como não temos nada no diretório raiz do hadoop não irá listar nada.
+
+portanto vamos criar um diretório
+$ hdfs dfs -mkdir /user
+$ hdfs dfs -mkdir /user/hadoop
+
+copiando conteudo para pasta gerada
+$ hdfs dfs -put /opt/hadoop/etc/hadoop/*.xml /user/hadoop
+lembrando que não está movendo e sim copiando
+
+$ hdfs dfs -ls /user/hadoop
+
+Found 13 items
+-rw-r--r--   1 hadoop supergroup       8260 2019-11-26 22:54 /user/hadoop/capacity-scheduler.xml
+-rw-r--r--   1 hadoop supergroup        885 2019-11-26 22:54 /user/hadoop/core-site.xml
+-rw-r--r--   1 hadoop supergroup      11392 2019-11-26 22:54 /user/hadoop/hadoop-policy.xml
+-rw-r--r--   1 hadoop supergroup        868 2019-11-26 22:54 /user/hadoop/hdfs-site.xml
+-rw-r--r--   1 hadoop supergroup        620 2019-11-26 22:54 /user/hadoop/httpfs-site.xml
+drwxr-xr-x   - hadoop supergroup          0 2019-12-01 00:12 /user/hadoop/input
+-rw-r--r--   1 hadoop supergroup       3518 2019-11-26 22:54 /user/hadoop/kms-acls.xml
+-rw-r--r--   1 hadoop supergroup        682 2019-11-26 22:54 /user/hadoop/kms-site.xml
+-rw-r--r--   1 hadoop supergroup        758 2019-11-26 22:54 /user/hadoop/mapred-site.xml
+drwxr-xr-x   - hadoop supergroup          0 2019-11-27 23:57 /user/hadoop/output
+drwxr-xr-x   - hadoop supergroup          0 2019-12-01 00:01 /user/hadoop/output2
+drwxr-xr-x   - hadoop supergroup          0 2019-12-01 00:17 /user/hadoop/output3
+-rw-r--r--   1 hadoop supergroup        690 2019-11-26 22:54 /user/hadoop/yarn-site.xml
+
+
+========================================================================
+
+Processando Big Data com Hadoop
+
+Nesse procedimento será usado MapReduce
+
+Aplicando MapReduce
+Iremos usar um job mapreduce feito em java
+
+Localizando os Jobs:
+$ cd /opt/hadoop/share/hadoop/
+$ ls -la
+
+total 12
+drwxr-xr-x. 8 hadoop hadoop   88 set 10 13:51 .
+drwxr-xr-x. 4 hadoop hadoop   31 set 10 14:11 ..
+drwxr-xr-x. 2 hadoop hadoop  123 set 10 13:51 client
+drwxr-xr-x. 6 hadoop hadoop  184 set 10 12:58 common
+drwxr-xr-x. 6 hadoop hadoop 4096 set 10 13:04 hdfs
+drwxr-xr-x. 6 hadoop hadoop 4096 set 10 13:51 mapreduce
+drwxr-xr-x. 6 hadoop hadoop   68 set 10 13:51 tools
+drwxr-xr-x. 8 hadoop hadoop 4096 set 10 13:51 yarn
+
+$ cd ls -la
+drwxr-xr-x. 6 hadoop hadoop    4096 set 10 13:51 .
+drwxr-xr-x. 8 hadoop hadoop      88 set 10 13:51 ..
+-rw-r--r--. 1 hadoop hadoop  613301 set 10 13:36 hadoop-mapreduce-client-app-3.2.1.jar
+-rw-r--r--. 1 hadoop hadoop  805845 set 10 13:36 hadoop-mapreduce-client-common-3.2.1.jar
+-rw-r--r--. 1 hadoop hadoop 1657002 set 10 13:36 hadoop-mapreduce-client-core-3.2.1.jar
+-rw-r--r--. 1 hadoop hadoop  215919 set 10 13:36 hadoop-mapreduce-client-hs-3.2.1.jar
+-rw-r--r--. 1 hadoop hadoop   45619 set 10 13:36 hadoop-mapreduce-client-hs-plugins-3.2.1.jar
+-rw-r--r--. 1 hadoop hadoop   85900 set 10 13:36 hadoop-mapreduce-client-jobclient-3.2.1.jar
+-rw-r--r--. 1 hadoop hadoop 1660369 set 10 13:36 hadoop-mapreduce-client-jobclient-3.2.1-tests.jar
+-rw-r--r--. 1 hadoop hadoop  126430 set 10 13:36 hadoop-mapreduce-client-nativetask-3.2.1.jar
+-rw-r--r--. 1 hadoop hadoop   97738 set 10 13:36 hadoop-mapreduce-client-shuffle-3.2.1.jar
+-rw-r--r--. 1 hadoop hadoop   57934 set 10 13:36 hadoop-mapreduce-client-uploader-3.2.1.jar
+-rw-r--r--. 1 hadoop hadoop  316534 set 10 13:36 hadoop-mapreduce-examples-3.2.1.jar
+drwxr-xr-x. 2 hadoop hadoop    4096 set 10 13:51 jdiff
+drwxr-xr-x. 2 hadoop hadoop      57 set 10 13:51 lib
+drwxr-xr-x. 2 hadoop hadoop      30 set 10 13:51 lib-examples
+drwxr-xr-x. 2 hadoop hadoop    4096 set 10 13:51 sources
+
+Esses arquivos listado acima são jobs pre-desenvolvidos de modelos MapReduce
+
+Com o procedimento de job MarReduce termos um grande volume de dados e extrair um conjunto de informações reduzidas.
+
+segue comando:
+$ hadoop jar /opt/hadoop/share/hadoop/maapreduce/hadoop-mapreduce-exemples-3.2.0_jar grep /user/hadoop output 'dfs[a-z]+'
+
+Trauzindo o comando;
+1 - hadoop jar /opt/hadoop/share/hadoop/maapreduce/hadoop-mapreduce-exemples-3.2.0_jar
+    executar a extensão java a partir do diretorio exemplos
+
+2 - grep /user/hadoop output 'dfs[a-z]+'
+    pegar os arquivos dentro do diretorio e crie um diretorio (output) e tenha palavras que comece com dfs e que tenha a e z
+
+ Depois execute o camando será gerado um job
+
+ primeiro ele irá mapear 100% e depois irá reduzir 100%
+
+ Verificando o resultado do processamento
+ $ hdfs dfs -ls /user/hadoop/output
+
+ usei 3 repositorios (diretorio) alem do output
+
+ Found 2 items
+-rw-r--r--   1 hadoop supergroup          0 2019-11-27 23:57 /user/hadoop/output/_SUCCESS
+-rw-r--r--   1 hadoop supergroup         11 2019-11-27 23:57 /user/hadoop/output/part-r-00000
+[hadoop@dataserver ~]$ hdfs dfs -ls /user/hadoop/output2
+Found 2 items
+-rw-r--r--   1 hadoop supergroup          0 2019-12-01 00:01 /user/hadoop/output2/_SUCCESS
+-rw-r--r--   1 hadoop supergroup          0 2019-12-01 00:01 /user/hadoop/output2/part-r-00000
+[hadoop@dataserver ~]$ hdfs dfs -ls /user/hadoop/output3
+Found 2 items
+-rw-r--r--   1 hadoop supergroup          0 2019-12-01 00:17 /user/hadoop/output3/_SUCCESS
+-rw-r--r--   1 hadoop supergroup         29 2019-12-01 00:17 /user/hadoop/output3/part-r-00000
+[hadoop@dataserver ~]$ 
+
+o primeiro arquivo representa 0 bytes com sucesso
+o segundo arquivo representa 11 bytes pois com o nome padrão do hadoop (part-r-00000)
+
+OBS: O hadoop não foi feito para executar ou visualizar os arquivos gerados, portanto devemos copiar o arquivo gerado para maquina local possibilitando a visualização dos dados gerados atraves do MapReduce.
+
+Como fazer isso:
+$ hdfs dfs -get output /output
+
+OBS: procedimento de copiar o aquivos pode ser executado para qualquer diretorio para melhor controle.
+
+$ ls
+'Área de trabalho'   Documentos   Downloads   Imagens   Modelos   Música   output   Público   Vídeos
+
+[hadoop@dataserver ~]$ cd output/
+[hadoop@dataserver output]$ ls
+part-r-00000  _SUCCESS
+[hadoop@dataserver output]$ 
+
+
+[hadoop@dataserver output]$ gedit _SUCCESS 
+[hadoop@dataserver output]$ gedit part-r-00000 
+
+Após concluir todo o trabalho saia da aplicação com o seguinte comando:
+
+========================================================================
+stop-dfs.sh
+========================================================================
+Para iniciar é:
+start-dfs.sh
+========================================================================
 
 
 
+
+========================================================================
+Configurando YARN
+========================================================================
 
