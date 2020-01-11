@@ -808,7 +808,274 @@ $ hdfs dfs -put /opt/hadoop/etc/hadoop/*.xml input
 
 Esse comando iré copiar todos os xml's para o diretorio input, portanto agora teremos os daddos que necessitamos para rodar o mapreduce, pois existe somente arquivos e não diretorios na pasta de leitura do mapreduce.
 
+=======================================================================
+
+
+=======================================================================
+
+Instalando e configurando o Zookeeper
+
+Inicialmente devemos acessar o site https://hadoopecosystemtable.github.io/
+
+Localize o Zookeeper, devemos ser direcionados para o Apche Zookeeper.
+
+Teremos dois links ao lado
+
+1 - Apache Zookeeper
+http://zookeeper.apache.org/ >> 
+Download ZooKeeper from the release page. >>  
+Download ---- https://www.apache.org/dyn/closer.cgi/zookeeper/ >>
+HTTP ----- http://ftp.unicamp.br/pub/apache/zookeeper/
+zookeeper-3.5.6/
+
+Baixe os Binarios
+apache-zookeeper-3.5.6-bin.tar.gz 
+
+Dica --- Copie o link va para o terminal e execute os seguintes comandos
+$ cd Downloads
+$ wget http://ftp.unicamp.br/pub/apache/zookeeper/zookeeper-3.5.6/apache-zookeeper-3.5.6-bin.tar.gz
+
+Com esse processo o arquivo será baixado.
+
+Os arquivos serão baixados no diretorio Downloads
+[hadoop@dataserver ~]$ cd Downloads/
+[hadoop@dataserver Downloads]$ ls -la
+total 586552
+drwxr-xr-x.  2 hadoop hadoop       104 dez  1 10:42 .
+drwx------. 17 hadoop hadoop      4096 dez  9 23:13 ..
+-rw-rw-r--.  1 hadoop hadoop   9230052 out 15 21:35 apache-zookeeper-3.5.6-bin.tar.gz
+-rw-rw-r--.  1 hadoop hadoop 359196911 nov 25 23:07 hadoop-3.2.1.tar.gz
+-rw-rw-r--.  1 hadoop hadoop 232190985 out 25 01:08 hbase-2.2.2-bin.tar.gz
+[hadoop@dataserver Downloads]$ 
+
+Descompactar o arquivo:
+tar -xvf apache-zookeeper-3.5.6-bin.tar.gz
+
+Irá gerar um diretorio, devemos mover esse diretorio para pasta /opt
+
+$ sudo mv apache-zookepeer-3.5.5-bin /opt/zookeeper
+acesse o diretorio /opt/zookeeper
+$ cd /opt/zookeeper
+
+dentro do diretorio zookeeper crie um diretorio data
+$ mkdir data
+drwxrwxr-x. 8 hadoop hadoop   158 dez  1 02:02 .
+drwxr-xr-x. 8 root   root     112 dez  1 01:48 ..
+drwxr-xr-x. 2 hadoop hadoop   232 out  8 17:14 bin
+drwxr-xr-x. 2 hadoop hadoop    92 dez  1 01:54 conf
+drwxrwxr-x. 3 hadoop hadoop    51 dez  1 02:02 data
+drwxr-xr-x. 5 hadoop hadoop  4096 out  8 17:15 docs
+drwxrwxr-x. 2 hadoop hadoop  4096 dez  1 01:45 lib
+-rw-r--r--. 1 hadoop hadoop 11358 out  5 08:27 LICENSE.txt
+drwxrwxr-x. 2 hadoop hadoop    52 dez  1 02:02 logs
+-rw-r--r--. 1 hadoop hadoop   432 out  8 17:14 NOTICE.txt
+-rw-r--r--. 1 hadoop hadoop  1560 out  8 17:14 README.md
+-rw-r--r--. 1 hadoop hadoop  1347 out  5 08:27 README_packaging.txt
 
 
 
+acesse o diretorio conf
+$ cd conf
+teremos um arquivo chamado zoo_sample.cfg de exemplo, portanto devemos copiar esse arquivo e trocar o nome para zoo.cfg, somente crie uma copia
+
+$ cp zoo_sample.cfg zoo.cfg
+wxr-xr-x. 2 hadoop hadoop   92 dez  1 01:54 .
+drwxrwxr-x. 8 hadoop hadoop  158 dez  1 02:02 ..
+-rw-r--r--. 1 hadoop hadoop  535 out  5 08:27 configuration.xsl
+-rw-r--r--. 1 hadoop hadoop 2712 out  5 08:27 log4j.properties
+-rw-r--r--. 1 hadoop hadoop  931 dez  1 01:54 zoo.cfg
+-rw-r--r--. 1 hadoop hadoop  922 out  8 17:14 zoo_sample.cfg
+
+Abra o arquivo zoo.cfg
+$ gedit zoo.cfg
+
+# The number of milliseconds of each tick
+tickTime=2000
+
+# The number of ticks that the initial 
+# synchronization phase can take
+initLimit=5
+
+# The number of ticks that can pass between 
+# sending a request and getting an acknowledgement
+syncLimit=5
+
+# the directory where the snapshot is stored.
+# do not use /tmp for storage, /tmp here is just 
+# example sakes.
+dataDir=/opt/zookeeper/data
+
+# the port at which the clients will connect
+clientPort=2181
+
+# the maximum number of client connections.
+# increase this if you need to handle more clients
+#maxClientCnxns=60
+#
+# Be sure to read the maintenance section of the 
+# administrator guide before turning on autopurge.
+#
+# http://zookeeper.apache.org/doc/current/zookeeperAdmin.html#sc_maintenance
+#
+# The number of snapshots to retain in dataDir
+#autopurge.snapRetainCount=3
+# Purge task interval in hours
+# Set to "0" to disable auto purge feature
+#autopurge.purgeInterval=1
+
+Esses é o arquivo de configuração do zookepeer
+
+Após executar o procedimento acima será necessário definir as variaveis de ambiente.
+
+Devemos ir para o diretorio home
+$ gedit .bashrc
+# Zookeeper
+export ZOOKEEPER_HOME=/opt/zookeeper
+export PATH=$PATH:$ZOOKEEPER_HOME/bin
+
+Após executar a definição dos parametros devemos atualizar as configurações atraves do comando:
+$ source .bashrc
+
+OBS: não esquecer de inicializar o hadoop e Yarn
+
+Para inicializar o Zookeeper segue o comando:
+=======================================================================
+$ zkServer.sh start
+=======================================================================
+[root@dataserver hadoop]# zkServer.sh start
+ZooKeeper JMX enabled by default
+Using config: /opt/zookeeper/bin/../conf/zoo.cfg
+Starting zookeeper ... STARTED
+[root@dataserver hadoop]# ^C
+[root@dataserver hadoop]# 
+
+Após iniciar devemos executar 
+$ jps
+
+
+=======================================================================
+
+
+=======================================================================
+
+Instalando e configurando o Hbase
+
+Bando de dados não relacional
+
+Inicialmente devemos acessar o site https://hadoopecosystemtable.github.io/
+
+Localize o HBASE, ao lado
+1. Apache HBase Home >> https://hbase.apache.org/
+
+Clique em Download
+
+Download
+
+Click here to download Apache HBase™.
+Acesse a versão mais atualizada no link (bin) >> https://www.apache.org/dyn/closer.lua/hbase/2.2.2/hbase-2.2.2-bin.tar.gz
+
+HTTP
+
+http://ftp.unicamp.br/pub/apache/hbase/2.2.2/hbase-2.2.2-bin.tar.gz
+
+Clique com o direito copia o link e acesso o terminal.
+acesse o diretorio Downloads
+
+$ cd Downloads
+$ wget http://ftp.unicamp.br/pub/apache/hbase/2.2.2/hbase-2.2.2-bin.tar.gz
+Download será executado
+
+Após o termino do Download, devemos descompactar o arquivo:
+$ tar -xvf hbase-2.2.2-bin.tar.gz
+
+consequentemente movemos o arquivo gerado:
+$ sudo mv hbase-2.2.2 /opt/hbase
+
+Acesse o diretorio /opt
+$ cd /opt/hbase
+crie um diretorio chamado hfiles -- esse diretorio ira ficar os arquivos do banco de dados HBASE
+$ mkdir hfiles
+total 896
+drwxrwxr-x.  8 hadoop hadoop    196 dez 10 00:51 .
+drwxr-xr-x.  9 root   root      125 dez 10 00:46 ..
+drwxr-xr-x.  4 hadoop hadoop   4096 out 19 06:53 bin
+-rw-r--r--.  1 hadoop hadoop 139417 out 19 06:53 CHANGES.md
+drwxr-xr-x.  2 hadoop hadoop    208 out 19 06:53 conf
+drwxr-xr-x. 11 hadoop hadoop   4096 out 19 07:38 docs
+drwxr-xr-x.  7 hadoop hadoop     80 out 19 07:13 hbase-webapps
+drwxrwxr-x.  2 hadoop hadoop      6 dez 10 00:51 hfiles
+-rw-r--r--.  1 hadoop hadoop    262 out 19 06:53 LEGAL
+drwxrwxr-x.  6 hadoop hadoop   8192 dez 10 00:45 lib
+-rw-r--r--.  1 hadoop hadoop 129312 out 19 07:44 LICENSE.txt
+-rw-r--r--.  1 hadoop hadoop 520601 out 19 07:44 NOTICE.txt
+-rw-r--r--.  1 hadoop hadoop   1477 out 19 06:53 README.txt
+-rw-r--r--.  1 hadoop hadoop  88280 out 19 06:53 RELEASENOTES.md
+
+
+acesse o arquivos conf -- Arquivos de configuração para o ecossitema hadoop
+$ cd conf
+$ ls -la
+total 44
+drwxr-xr-x. 2 hadoop hadoop  208 out 19 06:53 .
+drwxrwxr-x. 8 hadoop hadoop  196 dez 10 00:51 ..
+-rw-r--r--. 1 hadoop hadoop 1811 out 19 06:53 hadoop-metrics2-hbase.properties
+-rw-r--r--. 1 hadoop hadoop 4284 out 19 06:53 hbase-env.cmd
+-rw-r--r--. 1 hadoop hadoop 7536 out 19 06:53 hbase-env.sh
+-rw-r--r--. 1 hadoop hadoop 2257 out 19 06:53 hbase-policy.xml
+-rw-r--r--. 1 hadoop hadoop  934 out 19 06:53 hbase-site.xml
+-rw-r--r--. 1 hadoop hadoop 1168 out 19 06:53 log4j-hbtop.properties
+-rw-r--r--. 1 hadoop hadoop 4977 out 19 06:53 log4j.properties
+-rw-r--r--. 1 hadoop hadoop   10 out 19 06:53 regionservers
+
+devemos editar o seguinte arquivo:
+$ gedit hbase-env.sh
+
+descomente o export e ajuste o caminho da pasta jdk, conforme configurado lá no inicio do documento.
+
+# The java implementation to use.  Java 1.8+ required.
+export JAVA_HOME=/opt/jdk/
+
+
+Devemos editar também o arquivo:
+$ gedit hbase-site.xml
+
+<configuration>
+    <property>
+        <name>hbase.rootdir</name>
+        <value>file:///opt/hbase/hfiles</value>
+    </property>
+    <property>
+        <name>hbase.zookeeper.property.dataDir</name>      
+        <value>/opt/zookeeper/data</value>
+    </property>
+</configuration>
+
+Executado o procedimento acima volte para o diretorio home
+$ cd ~
+Devemos configurar as variaveis de ambiente
+$ gedit .bashrc
+
+# HBase
+export HBASE_HOME=/opt/hbase
+export PATH=$PATH:$HBASE_HOME/bin
+
+após executar todo o processo acima devemos inicializar o HBASE com o seguinte caminho:
+
+==============================================================
+$ start-hbase.sh
+==============================================================
+
+Após inicializar o hbase devemos acessar o SHELL com o seguinte comando:
+
+$ hbase shell
+
+Caso fique muito lento podemos parar alguns serviços.
+
+Para sair somente aplicar 
+$ exit
+
+
+=======================================================================
+
+Instalando e configurando o Hive
 
