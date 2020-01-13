@@ -307,7 +307,7 @@ httpfs-env.sh                     mapred-queues.xml.template
 /opt/hadoop/etc/hadoop
 [hadoop@dataserver hadoop]$
 
-dentro dediretorio teremo diversos arquivos, portanto vamos configurar o modelo pseudo distribuido.
+dentro dediretorio temos diversos arquivos, portanto vamos configurar o modelo pseudo distribuido.
 $ gedit core-site.xml
 
 Inicialmente o arquivo está com os paramentros de configuração vazio.
@@ -324,7 +324,7 @@ e copiar os seguintes parametros, conforme o modelo pseudo distribuido.
 Com esses parametros estamos indicando qual é o caminho do HDFS
 
 - sistema de aquivo padrão que é: s.defaultFS
-- no caminho: hdfs://localhost:9000 será o ponto de entrada do sistema HDFS, portanto os serviço dserão gerenciados pelo namenode e datanode que são os doi serviços principais.
+- no caminho: hdfs://localhost:9000 será o ponto de entrada do sistema HDFS, portanto os serviço serão gerenciados pelo namenode e datanode que são os dois serviços principais.
 
  <configuration>
     <property>
@@ -431,7 +431,7 @@ Testar a configuração
 $ ssh localhost
 Sistema irá solictar confirmação para efetivar a conexão ao localhost(127.0.0.1) presscione (yes)
 
-Mesmo assim pediu a senha, stá errado, pois não pode socilitar a senha.
+Mesmo assim pediu a senha, está errado, pois não pode socilitar a senha.
 
 Para configurar a senha é necessário executar o seguinte comando:
 $ sudo gedit /etc/ssh/sshd_config
@@ -454,10 +454,13 @@ AllowUsers aluno hadoop
 
 Após executar as configurações no ssh_config, será necessário restart no serviço ssh.
 
+==============================================================
 $ sudo systemctl restart sshd
-Após esse procedimento o serviço estar inicializado e não deve pedir a senha
+==============================================================
 
-Todo o procedimento acimo é referente a usar o ssh, pois não se trata de configuração de hadoop.
+Após esse procedimento o serviço esta inicializado e não deve pedir a senha
+
+Todo o procedimento acimo é referente ao uso do ssh, pois não se trata de configuração de hadoop.
 
 execute
 $ exit 
@@ -465,7 +468,7 @@ Para sair  (logout)
 
 ========================================================================
 
-Inicialmente para será necessário formatar o HDFS
+Inicialmente será necessário formatar o HDFS
 $ hdfs namenode -format
 
 sitema irá prepara o sistema de arquivos HDFS, e uma camda adicional sobra o sitema operacional linux
@@ -1077,5 +1080,132 @@ $ exit
 
 =======================================================================
 
+
 Instalando e configurando o Hive
+
+Apache Hive:
+Infraestrutura de Data Warehouse desenvolvida pelo Facebook. Resumo, consulta e análise de dados. Ele fornece uma linguagem semelhante a SQL (não compatível com SQL92): HiveQL.
+Portanto possibilita trabalhar dentro do HDFS de forma estruturada.
+
+Inicialmente devemos acessar o site https://hadoopecosystemtable.github.io/
+
+Localize o Apache Hive, ao lado
+1. Apache Hive >> http://hive.apache.org/
+
+Clique em Download
+Pontos de atenção, devemos verificar qual versão do hive é compativel com o hadoop instalado, portanto estamos trabalhando com a versão 3.1 do hadoop consequentemente devemos usar a versão do hive release 3.1 
+
+Clique em >> Download a release now!
+
+será direcionado para a seguinte pagina >>  http://www.apache.org/dyn/closer.cgi/hive/
+
+clique em >>
+HTTP
+
+http://ftp.unicamp.br/pub/apache/hive/
+
+clique em >>
+hive-3.1.2/
+
+Usar o binário
+apache-hive-3.1.2-bin.tar.gz
+
+Após o termino do Download, devemos descompactar o arquivo:
+$ tar -xvf apache-hive-3.1.2-bin.tar.gz
+
+consequentemente movemos o arquivo gerado:
+$ sudo mv apache-hive-3.1.2 /opt/hive
+
+dentro do diretório /opt/hive
+[hadoop@dataserver hive]$ ls -la
+total 56
+drwxrwxr-x. 10 hadoop hadoop   184 jan 13 11:38 .
+drwxr-xr-x. 10 root   root     137 jan 13 11:39 ..
+drwxrwxr-x.  3 hadoop hadoop   157 jan 13 11:38 bin
+drwxrwxr-x.  2 hadoop hadoop  4096 jan 13 11:38 binary-package-licenses
+drwxrwxr-x.  2 hadoop hadoop  4096 jan 13 11:38 conf
+drwxrwxr-x.  4 hadoop hadoop    34 jan 13 11:38 examples
+drwxrwxr-x.  7 hadoop hadoop    68 jan 13 11:38 hcatalog
+drwxrwxr-x.  2 hadoop hadoop    44 jan 13 11:38 jdbc
+drwxrwxr-x.  4 hadoop hadoop 12288 jan 13 11:38 lib
+-rw-r--r--.  1 hadoop hadoop 20798 ago 22 18:45 LICENSE
+-rw-r--r--.  1 hadoop hadoop   230 ago 22 18:45 NOTICE
+-rw-r--r--.  1 hadoop hadoop  2469 ago 22 18:47 RELEASE_NOTES.txt
+drwxrwxr-x.  4 hadoop hadoop    35 jan 13 11:38 scripts
+
+acesse o diretório /conf
+[hadoop@dataserver hive]$ cd conf/
+[hadoop@dataserver conf]$ ls -la
+total 336
+drwxrwxr-x.  2 hadoop hadoop   4096 jan 13 11:38 .
+drwxrwxr-x. 10 hadoop hadoop    184 jan 13 11:38 ..
+-rw-r--r--.  1 hadoop hadoop   1596 ago 22 18:44 beeline-log4j2.properties.template
+-rw-r--r--.  1 hadoop hadoop 300482 ago 22 19:01 hive-default.xml.template
+-rw-r--r--.  1 hadoop hadoop   2365 ago 22 18:44 hive-env.sh.template
+-rw-r--r--.  1 hadoop hadoop   2274 ago 22 18:45 hive-exec-log4j2.properties.template
+-rw-r--r--.  1 hadoop hadoop   3086 ago 22 18:44 hive-log4j2.properties.template
+-rw-r--r--.  1 hadoop hadoop   2060 ago 22 18:44 ivysettings.xml
+-rw-r--r--.  1 hadoop hadoop   3558 ago 22 18:44 llap-cli-log4j2.properties.template
+-rw-r--r--.  1 hadoop hadoop   7163 ago 22 18:44 llap-daemon-log4j2.properties.template
+-rw-r--r--.  1 hadoop hadoop   2662 ago 22 18:44 parquet-logging.properties
+
+acessado o diretorio conf
+teremos um arquivo chamado hive-env.sh.template de exemplo, portanto devemos copiar esse arquivo e trocar o nome para hive-env.sh, somente crie uma copia
+
+$ cp hive-env.sh.template hive-env.sh
+
+e o mesmo para o arquivo hive-default.xml.template
+$ cp hive-default.xml.template hive-default.xml
+
+segue os arquivos gerados após a copia
+[hadoop@dataserver conf]$ ls -la
+total 636
+drwxrwxr-x.  2 hadoop hadoop   4096 jan 13 11:54 .
+drwxrwxr-x. 10 hadoop hadoop    184 jan 13 11:38 ..
+-rw-r--r--.  1 hadoop hadoop   1596 ago 22 18:44 beeline-log4j2.properties.template
+-rw-r--r--.  1 hadoop hadoop 300482 jan 13 11:54 hive-default.xml
+-rw-r--r--.  1 hadoop hadoop 300482 ago 22 19:01 hive-default.xml.template
+-rw-r--r--.  1 hadoop hadoop   2365 jan 13 11:52 hive-env.sh
+-rw-r--r--.  1 hadoop hadoop   2365 ago 22 18:44 hive-env.sh.template
+-rw-r--r--.  1 hadoop hadoop   2274 ago 22 18:45 hive-exec-log4j2.properties.template
+-rw-r--r--.  1 hadoop hadoop   3086 ago 22 18:44 hive-log4j2.properties.template
+-rw-r--r--.  1 hadoop hadoop   2060 ago 22 18:44 ivysettings.xml
+-rw-r--r--.  1 hadoop hadoop   3558 ago 22 18:44 llap-cli-log4j2.properties.template
+-rw-r--r--.  1 hadoop hadoop   7163 ago 22 18:44 llap-daemon-log4j2.properties.template
+-rw-r--r--.  1 hadoop hadoop   2662 ago 22 18:44 parquet-logging.properties
+
+Após gerar as devidas copias devemos verificar o conteudo dos arquivos com oo seguinte comando;
+$ gedit hive-env.sh
+
+Ajustar as seguintes linhas;
+# Set HADOOP_HOME to point to a specific hadoop install directory
+# HADOOP_HOME=${bin}/../../hadoop
+HADOOP HOME=/opt/hadoop
+
+# Hive Configuration Directory can be controlled by:
+export HIVE_CONF_DIR=/opt/hive/conf
+
+$ gedit hive-default.xml
+<property>
+    <name>hive.metastore.event.db.notification.api.auth</name>
+    <value>false<value/>
+    <description>
+	O metastore deve autorizar contra APIs relacionadas à notificação do banco de dados, como get_next_notification.
+	Se definido como true, somente os superusuários nas configurações de proxy terão permissão.
+    <description/>
+
+
+Também será necessário validar outros diretórios, pois esses dentro do HDFS.
+Acesse o diretório HDFS através do comando
+$ cd ~
+
+
+
+
+
+
+
+
+
+
 
