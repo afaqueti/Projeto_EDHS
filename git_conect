@@ -74,7 +74,7 @@ Se tens um diretório de projeto que atualmente não está sob o controle da ver
 para o Linux:
 -- Esse diretorio foi o escolhido para gera o clone do Git
 $ cd /Documentos/
-Depois digite  
+Depois digite 
 $ git init
 Monte o clone para o diretório escolhido
 $ git clone <URL da pasta ou projeto>
@@ -93,6 +93,7 @@ $ git add .
 
 Caso tenha alguma alteração no arquivo
 $ git diff
+Para Sair (q)
 
 Gerando o COMMIT
 $ git commit -m "Primeira versão documento para conexão GIT"
@@ -107,4 +108,3 @@ Security
 Status
 Help
 Contact GitHub
-==============================================================================
