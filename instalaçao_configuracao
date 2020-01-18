@@ -126,7 +126,7 @@ informar as seguintes variaveis
 export JAVA_HOME=/opt/jdk
 export PATH=$PATH:$JAVA_HOME/bin
 
-Para atualizar eler as variaveis de ambientes:
+Para atualizar as variaveis de ambientes:
 $ source .bashrc
 
 confirmar a versão
@@ -307,7 +307,7 @@ httpfs-env.sh                     mapred-queues.xml.template
 /opt/hadoop/etc/hadoop
 [hadoop@dataserver hadoop]$
 
-dentro dediretorio temos diversos arquivos, portanto vamos configurar o modelo pseudo distribuido.
+dentro dediretorio teremo diversos arquivos, portanto vamos configurar o modelo pseudo distribuido.
 $ gedit core-site.xml
 
 Inicialmente o arquivo está com os paramentros de configuração vazio.
@@ -324,7 +324,7 @@ e copiar os seguintes parametros, conforme o modelo pseudo distribuido.
 Com esses parametros estamos indicando qual é o caminho do HDFS
 
 - sistema de aquivo padrão que é: s.defaultFS
-- no caminho: hdfs://localhost:9000 será o ponto de entrada do sistema HDFS, portanto os serviço serão gerenciados pelo namenode e datanode que são os dois serviços principais.
+- no caminho: hdfs://localhost:9000 será o ponto de entrada do sistema HDFS, portanto os serviço dserão gerenciados pelo namenode e datanode que são os doi serviços principais.
 
  <configuration>
     <property>
@@ -431,7 +431,7 @@ Testar a configuração
 $ ssh localhost
 Sistema irá solictar confirmação para efetivar a conexão ao localhost(127.0.0.1) presscione (yes)
 
-Mesmo assim pediu a senha, está errado, pois não pode socilitar a senha.
+Mesmo assim pediu a senha, stá errado, pois não pode socilitar a senha.
 
 Para configurar a senha é necessário executar o seguinte comando:
 $ sudo gedit /etc/ssh/sshd_config
@@ -454,13 +454,10 @@ AllowUsers aluno hadoop
 
 Após executar as configurações no ssh_config, será necessário restart no serviço ssh.
 
-==============================================================
 $ sudo systemctl restart sshd
-==============================================================
+Após esse procedimento o serviço estar inicializado e não deve pedir a senha
 
-Após esse procedimento o serviço esta inicializado e não deve pedir a senha
-
-Todo o procedimento acimo é referente ao uso do ssh, pois não se trata de configuração de hadoop.
+Todo o procedimento acimo é referente a usar o ssh, pois não se trata de configuração de hadoop.
 
 execute
 $ exit 
@@ -468,7 +465,7 @@ Para sair  (logout)
 
 ========================================================================
 
-Inicialmente será necessário formatar o HDFS
+Inicialmente para será necessário formatar o HDFS
 $ hdfs namenode -format
 
 sitema irá prepara o sistema de arquivos HDFS, e uma camda adicional sobra o sitema operacional linux
@@ -1081,6 +1078,7 @@ $ exit
 =======================================================================
 
 
+
 Instalando e configurando o Hive
 
 Apache Hive:
@@ -1180,10 +1178,17 @@ $ gedit hive-env.sh
 Ajustar as seguintes linhas;
 # Set HADOOP_HOME to point to a specific hadoop install directory
 # HADOOP_HOME=${bin}/../../hadoop
-HADOOP HOME=/opt/hadoop
+HADOOP_HOME=/opt/hadoop
 
 # Hive Configuration Directory can be controlled by:
 export HIVE_CONF_DIR=/opt/hive/conf
+
+$ gedit .bashrc
+# Hive
+export HIVE_HOME=/opt/hive
+export PATH=$PATH:$HIVE_HOME/bin
+export CLASSPATH=$CLASSPATH:$HADOOP_HOME/lib/*:.
+export CLASSPATH=$CLASSPATH:$HIVE_HOME/lib/*:.
 
 $ gedit hive-default.xml
 <property>
@@ -1193,19 +1198,150 @@ $ gedit hive-default.xml
 	O metastore deve autorizar contra APIs relacionadas à notificação do banco de dados, como get_next_notification.
 	Se definido como true, somente os superusuários nas configurações de proxy terão permissão.
     <description/>
+ <property>
 
-
-Também será necessário validar outros diretórios, pois esses dentro do HDFS.
+Também será necessário validar outros diretórios, pois esses estão dentro do HDFS.
 Acesse o diretório HDFS através do comando
 $ cd ~
+$ hdfs dfs -ls /user
+Dentro do diretorio user deve ser criado um novo diretório "hive"
+$ hdfs dfs -mkdir /user/hive
+
+Dentro do diretorio /user/hive/warehouse também necessaŕio cria o diretório "warehouse"
+
+segue sequencia:
+[hadoop@dataserver ~]$ hdfs dfs -ls /
+Found 2 items
+drwx------   - hadoop supergroup          0 2019-11-30 23:59 /tmp
+drwxr-xr-x   - hadoop supergroup          0 2019-11-26 22:51 /user
+[hadoop@dataserver ~]$ hdfs dfs -ls /user
+Found 1 items
+drwxr-xr-x   - hadoop supergroup          0 2019-12-07 18:36 /user/hadoop
+[hadoop@dataserver ~]$ hdfs dfs -mkdir /user/hive
+[hadoop@dataserver ~]$ hdfs dfs -ls /user
+Found 2 items
+drwxr-xr-x   - hadoop supergroup          0 2019-12-07 18:36 /user/hadoop
+drwxr-xr-x   - hadoop supergroup          0 2020-01-13 20:31 /user/hive
+[hadoop@dataserver ~]$ hdfs dfs -mkdir /user/hive/warehouse
+[hadoop@dataserver ~]$ hdfs dfs -ls /user
+Found 2 items
+drwxr-xr-x   - hadoop supergroup          0 2019-12-07 18:36 /user/hadoop
+drwxr-xr-x   - hadoop supergroup          0 2020-01-13 20:34 /user/hive
+[hadoop@dataserver ~]$ hdfs dfs -ls /user/hive
+Found 1 items
+drwxr-xr-x   - hadoop supergroup          0 2020-01-13 20:34 /user/hive/warehouse
+
+Dentro do doretório Warehouse será armazenado todo o squema gerado referente as informações.
+
+Importante identificar o seguinte erro:
+Estava com esse mesmo problema mas resolvi da seguinte forma. Vai no caminho /opt/hadoop/share/hadoop/common/lib e verifica a versao do arquivo guava . jar . Provavelmente ele sera diferente da versao desse jar que esta presente no HIVE /opt/hive/lib .
+Caso a versão esteja diferente , apague a versão mais antiga e copie a versao mais nova para ambos os diretorios , tanto o do hadoop quanto o do HIVE . Resumindo, a versão do guava .jar tatnto do hadoop quanto do hive tem que ser a mesma.
+
+Inializando o squema hive
+$ schematool -dbType derby -initSchema
+
+Necessário gerar o schema, pois se trata de banco relacional por esse motivo é necessário gerar o schema.
+
+Observação importante: O banco de dados usado será o "derby", pois poderia ser outro qualquer como SQL, ORACLE e etc..
 
 
 
+SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/opt/hive/lib/log4j-slf4j-impl-2.10.0.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/opt/hadoop/share/hadoop/common/lib/slf4j-log4j12-1.7.25.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual binding is of type [org.apache.logging.slf4j.Log4jLoggerFactory]
+Metastore connection URL:	 jdbc:derby:;databaseName=metastore_db;create=true
+Metastore Connection Driver :	 org.apache.derby.jdbc.EmbeddedDriver
+Metastore connection User:	 APP
+Starting metastore schema initialization to 3.1.0
+Initialization script hive-schema-3.1.0.derby.sql
+
+Initialization script completed
+schemaTool completed
+
+Após esses procedimento execute o comando
+$ hive
+Será aberto o shell do hive
+
+Para acessar a tabela
+hive> show tables;
+
+Para sair
+hive> exit;
 
 
 
+======================================================================
+
+Instalando e configurando o Pig
+
+O Pig fornece um mecanismo para executar fluxos de dados em paralelo no Hadoop. Ele inclui um idioma, Pig Latin, para expressar esses fluxos de dados. O Pig Latin inclui operadores para muitas das operações de dados tradicionais (junção, classificação, filtro etc.), bem como a capacidade dos usuários de desenvolver suas próprias funções para leitura, processamento e gravação de dados. Porco é executado no Hadoop. Ele utiliza o sistema de arquivos distribuídos Hadoop, HDFS e o sistema de processamento do Hadoop, MapReduce.
+O Pig usa o MapReduce para executar todo o seu processamento de dados. Ele compila os scripts do Pig Latin que os usuários gravam em uma série de uma ou mais tarefas do MapReduce que são executadas. O Pig Latin parece diferente de muitas das linguagens de programação que você já viu. Não há instruções if ou para loops no Pig Latin. Isso ocorre porque as linguagens de programação tradicionais de procedimentos e orientadas a objetos descrevem o fluxo de controle, e o fluxo de dados é um efeito colateral do programa. O Pig Latin se concentra no fluxo de dados.
+
+Apache Pig server para grandes volumes de dados.
+
+Acessar a pagina 
+https://pig.apache.org/
+Link -  Apache Pig 0.17.0 is released!
+
+News
+Apache Pig 0.17.0 is released!
+
+The highlights of this release is the introduction of Pig on Spark. See details on the 
+
+link - release page.
+
+link - Download
+Download a release now!
+
+acesse:
+http://ftp.unicamp.br/pub/apache/pig
+
+link - pig-0.17.0/ 
+Ponto de observação, caso não tiver o bin baixar o tar.
+
+Após fazer o Download do Pig descompactar.
+$ tar -xvf pig-0.17.0.tar.gz
+
+Mover o arquivo para o diretorio /opt/pig
+$ sudo mv pig-0.17.0 /opt/pig
+
+acessar o arquivo para ajustar os dados de ambientes
+$ gedit .bashrc
+
+# Pig
+export PIG_HOME=/opt/pig
+export PATH=$PATH:$PIG_HOME/bin
+export PIG_CLASSPATH=$HADOOP_HOME/conf
+
+Executa o seguinte comando para acessar o shell do PIG.
+$ pig
+$ pig help;
+
+Para sair
+$ quit:
 
 
+======================================================================
 
+Instalando e configurando Spark
 
+Estrutura de computação de cluster de análise de dados originalmente desenvolvida no AMPLab da UC Berkeley. O Spark se encaixa na comunidade de código aberto do Hadoop, baseada no HDFS (Hadoop Distributed File System). No entanto, o Spark fornece uma alternativa mais fácil de usar ao Hadoop MapReduce e oferece desempenho até 10 vezes mais rápido que os sistemas da geração anterior, como o Hadoop MapReduce, para determinados aplicativos.
+O Spark é uma estrutura para escrever programas distribuídos rapidamente. O Spark resolve problemas semelhantes aos do Hadoop MapReduce, mas com uma abordagem rápida na memória e uma API de estilo funcional limpa. Com sua capacidade de integração com o Hadoop e ferramentas embutidas para análise interativa de consultas (Shark), processamento e análise de gráficos em larga escala (Bagel) e análise em tempo real (Spark Streaming), ele pode ser usado de forma interativa para processar e consultar rapidamente grandes conjuntos de dados.
+Para acelerar a programação, o Spark fornece APIs limpas e concisas em Scala, Java e Python. Você também pode usar o Spark interativamente dos shells Scala e Python para consultar rapidamente grandes conjuntos de dados. O Spark também é o mecanismo por trás do Shark, um sistema de data warehouse totalmente compatível com Apache Hive que pode executar 100x mais rápido que o Hive.
 
+Acesse o Link
+http://hadoopecosystemtable.github.io/
+E consulte por Spark va até "Apache Spark"
+
+Para Baixar acesse o link:
+http://spark.apache.org/downloads.html
+Verifique qual a versão do hadoop ou superior e clique na opção 3 para ser direcionado ao mirror
+Pagina do mirror
+https://www.apache.org/dyn/closer.lua/spark/spark-3.0.0-preview2/spark-3.0.0-preview2-bin-hadoop3.2.tgz
+
+Acesse o mirror de preferencia
+HTTP¶
+
+http://ftp.unicamp.br/pub/apache/spark/spark-3.0.0-preview2/spark-3.0.0-preview2-bin-hadoop3.2.tgz
