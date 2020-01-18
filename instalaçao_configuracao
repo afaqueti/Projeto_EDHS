@@ -1343,5 +1343,36 @@ https://www.apache.org/dyn/closer.lua/spark/spark-3.0.0-preview2/spark-3.0.0-pre
 
 Acesse o mirror de preferencia
 HTTP¶
-
+Faça o Download
 http://ftp.unicamp.br/pub/apache/spark/spark-3.0.0-preview2/spark-3.0.0-preview2-bin-hadoop3.2.tgz
+
+Descompactar o arquivo
+$ tar -xvf spark-3.0.0-preview2-bin-hadoop3.2.tgz
+
+Apos descompactar, copie o arquivo para o diretorio padrão /opt/spark
+$ sudo mv spark-3.0.0-preview2-bin-hadoop3.2 /opt/spark
+
+Não será preciso fazer nenhuma configuração dentro da pasta Spark, portanto devemos voltar ao diretorio cd ~ 
+
+Acesse o .bashrc para editar variaveis de ambientes:
+$ gedit .bashrc
+
+# Spark
+export SPARK_HOME=/opt/spark
+export PATH=$PATH:$SPARK_HOME/bin
+
+$ source .bashrc
+
+Para executar o Spark :
+spark-shell
+
+Esse Shell é para atuar com Shell da linguagem Scala, caso queira usar a api python segue o comando para acesso
+
+Primeiro sai do shell-scala:
+scala> :q
+
+Agora para acessar a api Python, digite o seguinte comando:
+[hadoop@dataserver ~]$ pyspark
+
+
+
