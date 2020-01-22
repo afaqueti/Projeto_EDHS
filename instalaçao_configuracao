@@ -1391,6 +1391,184 @@ Caminho para executar o python localmente.
 $ cd /usr/bin/ env python3
 
 
+======================================================================
+
+Instalando e configurando Apache Sqoop
+
+Sistema para transferência de dados em massa entre HDFS e datastores estruturados como RDBMS. Como o Flume, mas do HDFS para o RDBMS. Portanto pode funcionar como uma ferramenta ETL.
+
+Acesse a pagina:
+http://sqoop.apache.org/
+
+Existe uma ponto muito importante no Sqoop que dentro da documentação podemos identificar que são as versões disponiveis, pois termos que usar a opção de Sqoop 1, pois as versões de Sqoop 2 não é aconselhavel usar, essas se encontram incompletas e com muitos problemas.
 
 
+Iremos usar o seguinte link:
+Documentation >> Sqoop 1 >> Downloads
+ 
+ HTTP
 
+http://ftp.unicamp.br/pub/apache/sqoop/1.4.7
+
+Baixar o link:
+sqoop-1.4.7.bin__hadoop-2.6.0.tar.gz
+
+Após baixar o arquivo será necessário descompactar com o seguinte comando:
+$ tar -xvf sqoop-1.4.7.bin__hadoop-2.6.0.tar.gz
+
+Com o arquivo descompactado será necessário mover o diretório para /opt/sqoop com o seguinte comando.
+
+$ sudo mv sqoop-1.4.7.bin__hadoop-2.6.0 /opt/sqoop
+
+Dentro do diretório devemos criar dois diretórios
+$ cd /opt/sqoop
+
+$ sudo mkdir accumulo
+sudo mkdir hcatalog
+ 
+Acesse a pasta conf/
+Copie o arquivo 
+$ sudo cp sqoop-env-template. sqoop-env.sh
+
+Execute o comando :
+gedit sqoop-env.sh
+
+e ajuste as linhas de variaveis conforme abaixo:
+# Set Hadoop-specific environment variables here.
+
+#Set path to where bin/hadoop is available
+export HADOOP_COMMON_HOME=/opt/hadoop
+
+#Set path to where hadoop-*-core.jar is available
+export HADOOP_MAPRED_HOME=/opt/hadoop
+
+#set the path to where bin/hbase is available
+export HBASE_HOME=/opt/hbase
+
+#Set the path to where bin/hive is available
+export HIVE_HOME=/opt/hive
+
+#Set the path for where zookeper config dir is
+export ZOOCFGDIR=/opt/zookeeper/conf
+
+
+Apos editar também será necessário acessar o .bashrc
+$ gedit .bashrc
+Crie as seguintes variaveis:
+# Sqoop
+export SQOOP_HOME=/opt/sqoop
+export PATH=$PATH:$SQOOP_HOME/bin
+export HCAT_HOME=/opt/sqoop/hcatalog
+export ACCUMULO_HOME=/opt/sqoop/accumulo
+
+
+Feito as configurações de variaveis execute o comando :
+$ sqoop version
+O importante está nessa linha , pois informa que esta rodando com a seguinte versão 1.4.7
+2020-01-22 00:44:53,479 INFO sqoop.Sqoop: Running Sqoop version: 1.4.7
+
+Toda essa configuração possibilita executa e exportar dados de um banco relacional para o HDFS através do SQOOP
+
+=================================================================
+
+Instalando e configurando o Apache Flume
+
+O Flume é um serviço distribuído, confiável e disponível para coletar, agregar e mover com eficiência grandes quantidades de dados de log. Possui uma arquitetura simples e flexível, baseada no fluxo de dados de streaming. É robusto e tolerante a falhas, com mecanismos de confiabilidade ajustáveis ​​e muitos mecanismos de failover e recuperação. Ele usa um modelo de dados extensível simples que permite aplicativos analíticos online.
+
+Acesse a pagina oficial
+http://flume.apache.org/
+
+Acesse o link Download
+pache-flume-1.9.0-bin.tar.gz
+
+HTTP
+
+http://ftp.unicamp.br/pub/apache/flume/1.9.0/apache-flume-1.9.0-bin.tar.gz
+
+Após baixar o arquivo no diretório downloads descompactar
+$ tar -xvf apache-flume-1.9.0-bin.tar.gz
+
+Mover para o diretório /opt/flume
+$ sudo mv apache-flume-1.9.0-bin /opt/flume
+
+$ cd /opt/flume
+
+Acesse o arquivo conf/
+$ cd conf/
+
+Execute o comando para copiar o arquivo
+$ sudo cp flume-env.sh.template flume-env.sh
+
+[hadoop@dataserver conf]$ sudo cp flume-env.sh.template flume-env.sh
+[hadoop@dataserver conf]$ ls -la
+total 20
+drwxr-xr-x. 2 hadoop hadoop  147 jan 22 02:05 .
+drwxrwxr-x. 7 hadoop hadoop  187 jan 22 02:00 ..
+-rw-r--r--. 1 hadoop hadoop 1661 nov 16  2017 flume-conf.properties.template
+-rw-r--r--. 1 hadoop hadoop 1455 nov 16  2017 flume-env.ps1.template
+-rw-r--r--. 1 root   root   1568 jan 22 02:05 flume-env.sh
+-rw-r--r--. 1 hadoop hadoop 1568 ago 30  2018 flume-env.sh.template
+-rw-rw-r--. 1 hadoop hadoop 3107 dez 10  2018 log4j.properties
+
+Recomendado sempre gerar uma copia conforme comando acima
+
+Execute o comando dentro do arquivo flume-env.sh
+gedit flume-env.sh
+
+Será necessário ajustar as veriaveis conforme abaixo, desomentar e incluir a seguinte variavel.
+# Enviroment variables can be set here.
+
+export JAVA_HOME=/opt/jdk
+
+Feito o passo acima acesse as variaveis de ambiente .bashrc no diretorio home
+/home/hadoop
+
+Execute
+gedit .bashrc
+
+Incluir as seguintes variaveis de ambientes dentro do arquivo .bashrc
+# Flume
+export FLUME_HOME=/opt/flume
+export PATH=$PATH:$FLUME_HOME/bin
+
+Execute o comando 
+hadoop@dataserver ~]$ flume-ng help
+Usage: /opt/flume/bin/flume-ng <command> [options]...
+
+commands:
+  help                      display this help text
+  agent                     run a Flume agent
+  avro-client               run an avro Flume client
+  version                   show Flume version info
+
+global options:
+  --conf,-c <conf>          use configs in <conf> directory
+  --classpath,-C <cp>       append to the classpath
+  --dryrun,-d               do not actually start Flume, just print the command
+  --plugins-path <dirs>     colon-separated list of plugins.d directories. See the
+                            plugins.d section in the user guide for more details.
+                            Default: $FLUME_HOME/plugins.d
+  -Dproperty=value          sets a Java system property value
+  -Xproperty=value          sets a Java -X option
+
+agent options:
+  --name,-n <name>          the name of this agent (required)
+  --conf-file,-f <file>     specify a config file (required if -z missing)
+  --zkConnString,-z <str>   specify the ZooKeeper connection to use (required if -f missing)
+  --zkBasePath,-p <path>    specify the base path in ZooKeeper for agent configs
+  --no-reload-conf          do not reload config file if changed
+  --help,-h                 display help text
+
+avro-client options:
+  --rpcProps,-P <file>   RPC client properties file with server connection params
+  --host,-H <host>       hostname to which events will be sent
+  --port,-p <port>       port of the avro source
+  --dirname <dir>        directory to stream to avro source
+  --filename,-F <file>   text file to stream to avro source (default: std input)
+  --headerFile,-R <file> File containing event headers as key/value pairs on each new line
+  --help,-h              display help text
+
+  Either --rpcProps or both --host and --port must be specified.
+
+Note that if <conf> directory is specified, then it is always included first
+in the classpath.
