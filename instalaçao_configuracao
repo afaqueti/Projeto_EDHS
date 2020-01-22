@@ -1374,5 +1374,23 @@ scala> :q
 Agora para acessar a api Python, digite o seguinte comando:
 [hadoop@dataserver ~]$ pyspark
 
+Caso o comando pyspark não funcione será necessário executar os seguintes procedimentos:
+
+1 - Vá para a pasta $ cd /opt/spark, acesse a pasta conf
+
+2 - Na pasta conf, existe um arquivo chamado spark-env.sh. Caso você tenha um arquivo chamado spark-env.sh.template, precisará copiar o arquivo para um novo arquivo chamado spark-env.sh.
+
+3 - Edite o arquivo e escreva as próximas três linhas
+export PYSPARK_PYTHON =/usr/bin/python3
+export PYSPARK_DRIVER_PYTHON =/usr/bin/python3
+export SPARK_YARN_USER_ENV = "PYSPARK_PYTHON =/usr/bin/python3"
+
+Dessa forma, se você baixar uma nova versão independente do Spark, poderá definir a versão do Python para a qual deseja executar o PySpark
+
+Caminho para executar o python localmente.
+$ cd /usr/bin/ env python3
+
+
+
 
 
