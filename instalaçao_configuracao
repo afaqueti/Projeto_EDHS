@@ -476,6 +476,11 @@ Storege directory /tmp/hadoop/dfs/name has been sucessfully formatted:
 A partir desse momento devemos iniciar o HDFS
 $ start-dfs.sh
 
+Em caso de problema podemos para todos os serviços o somente o namenode 
+$ stop-all.sh
+
+$ hadoop-daemon.sh
+
 [root@dataserver hadoop]# su hadoop
 [hadoop@dataserver ~]$ pwd
 /home/hadoop
@@ -1572,3 +1577,132 @@ avro-client options:
 
 Note that if <conf> directory is specified, then it is always included first
 in the classpath.
+
+
+=============================================================
+
+
+Para Baixar grandes volumes de dados podemos acessar o seguinte Site
+https://grouplens.org/
+Menu -- Dataset
+
+Devemos Baixar o arquivo ml-25.zip no meu caso o arquivo disponivel era esse para efeto de teste.
+
+Importante apontar que quando for mover um arquivo dentro do hdfs devemos usar o -put
+
+=============================================================
+Parametrizando o hdfs
+
+Por padrão o hdfs usa o diretório /tmp/hadoop-hadoop/dfs
+
+# Cria os diretórios abaixo
+
+mkdir /opt/hadoop/dfs
+mkdir /opt/hadoop/dfs/data
+mkdir /opt/hadoop/dfs/namespace_logs
+
+
+# Editar o arquivo $HADOOP_HOME/etc/hadoop/hdfs-site.xml e adicionar as linhas:
+
+    <property>
+      <name>dfs.namenode.name.dir</name>
+      <value>file:/opt/hadoop/dfs/namespace_logs</value>
+    </property>
+
+    <property>
+      <name>dfs.datanode.data.dir</name>
+      <value>file:/opt/hadoop/dfs/data</value>
+    </property>
+
+Lembrando que estamos dentro de um pseudo cluster .... poratnto se tivemos outras maquina cada parametro deve estar dentro da sua devida maquian datanode e namenode, 
+
+=============================================================
+
+Verificando status do banco de dados relacionnal MYSQL SEVER
+
+$ sudo  systemctl status mysqld
+
+Iniciar o serviço:
+$ sudo systemctl start mysqld
+Iniciando o processo o serviço deve estar como actve(running)
+
+Para acessar o shel devemos executar o seguinte comando:
+mysql -u root -p
+Password = Pingo@@@1 
+
+=============================================================
+Conectando Mysql no Hadoop.
+
+Para isso acontecer devemos baixar o conector JODB MYSQL ou para o banco de origem que pode ser qualquer um conforme mercado.
+
+Necessário acessar o site do fabricante no nosso caso será do MYSQL.
+https://dev.mysql.com/downloads/connector/j/
+
+Ou pode pesquisar no google como 
+jdbc connector download
+
+Apos acessar o link definido, podemos verificar a cersão disponivel e escolher para qual sistema operacional devemos apontar;
+Portanto devemos escolher a plataforma independnete (Platform Independent), pois iremos baixar um arquivo .zip e não um pacote se caso escolher uma opção de sistema operacional com Debian ou outro.
+
+
+Platform Independent (Architecture Independent), ZIP Archive >> clique em download
+ Não é necessário criar conta >> No thanks, just start my download.
+
+Descompact o arquivo 
+# unzip mysql-connector-java-8.0.19
+OBS: o arquivo está no diretorio Downloads 
+
+localize o arquivo após decompactado:
+mysql-connector-java-8.0.19.jar 
+
+
+Feito todo o processo devemos copiar o arquivo para pasta lib(Biblioteca) do SqOOP com o seguinte comando:
+
+
+$ cp mysql-connector-java-8.0.19.jar /opt/sqoop//lib/
+
+Essa pasta lib ira conctar o sqoop ao banco de dados mysql que criamos conforme seu JDBC MYSQL.
+
+O apche SQOOP é uma ferramenta ETL essa ferramenta ira pegar os dados o banco SGBD relacional e importar para o HDFS.
+
+usamos o seguinte comando para acessar o banco de dados:
+sqoop list-databases --connect jdbc:mysql://localhost:3306/ --username root -P
+
+Erro: Não foi possível localizar nem carregar a classe principal org.apache.hadoop.hbase.util.GetJavaProperty
+
+Conforme informações da equipe Datascience, esse erro é devido a não atualização de uma biblioteca, pois o apache sqoop não suporta a versão do hadoop apache 3. ou superior.
+
+
+Para solução do problema iremos acessar o git da datscience para executar o procedimento:
+Acesse o Seguinte link
+https://github.com/dsacademybr/Libs/blob/master/commons-lang-2.6-bin.zip
+
+Copie o link no botão de Download e baixe o arquivo via terminal
+
+com o seguinte comando;
+Baixar no diretório Downloads
+$  wget https://github.com/dsacademybr/Libs/blob/master/commons-lang-2.6-bin.zip
+
+Caso o arquivo apresente erro ao descompactar baixe direto do botão Downloads
+
+Após baixar descompactar o arquivo
+unzip commons-lang-2.6-bin.zip
+
+Devemos copiar o arquivos que fica dentro do diretorio commons-lang-2.6
+commons-lang-2.6.jar para o diretorio /lib do sqoop com o seguinte comando:
+$ cp commons-lang-2.6.jar /opt/sqoop/lib/
+
+$ sqoop list-databases --connect jdbc:mysql://localhost:3306/?serverTimezone=UTC --username root -P
+
+Comando para executar o import:
+$ sqoop import --connect jdbc:mysql://localhost:3306/testedb?serverTimezone=UTC --username root --password Pingo@@@1 --table empregados --m 1 
+
+Depois que o arquivo for gerado será necessário copiar para maquina local para identificar se o arquivo esta correto com o seguinte comando
+
+$ hdfs dfs -get /user/hadoop/empregados/part-m-00000 /home/hadoop/Documentos/teste/
+
+feito esse procedimento podemos verificar o arquivo com o comando:
+
+$ cat Documentos/teste/part-m-00000 
+Alessandro Faqueti,12345
+ 
