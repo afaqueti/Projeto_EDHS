@@ -1705,4 +1705,63 @@ feito esse procedimento podemos verificar o arquivo com o comando:
 
 $ cat Documentos/teste/part-m-00000 
 Alessandro Faqueti,12345
- 
+
+
+======================================================================
+
+Configurando anaconda
+
+Consulte anaconda 
+anaconda.com
+
+Acesse Downloads e selcione o sistema operacional de referencia
+
+BAixe a versão python3.7 version, pois a versão 2.7 não será usado no treinamento.
+
+Após executar o Download executar o comando 
+$ bash Anaconda3-2019.10-Linux-x86_64.sh
+Dentro do Diretório Downloads/
+
+Anaconda foiinstalado    no seguinte diretorio
+/home/hadoop/anaconda3
+
+Em caso de problemas o anaconda pode ser desintalados simplesmente deletar o diretorio anaconda.
+
+Usado o pip para instalar o jupyter lab
+
+$ sudo pip3 install jupyterlab
+
+após instalar execute o comando:
+$ jupyter lab
+
+segue link de instalção 
+https://jupyterlab.readthedocs.io/en/stable/getting_started/installation.html
+
+Para configuração e uso do anaconda, precisamos fazer uma instalção de um pacote chamado "mrjob", pois esse pacote
+contempla uma facilidade para gerar mapreduce no python conforme suas bibliotecas.
+
+acesse o seguinte link:
+https://github.com/Yelp/mrjob
+
+e para instalar execute o seguinte comando:
+$ pip install mrjob
+
+==========================================================================
+
+Executando MapReduce com Python
+
+Primeiro vamos usar alguns exemplos:
+
+Dentro do diretório Datasets temos divesos datasets de exemplo, esse denvem ser copiados para o HDFS
+
+$ hdfs dfs -put Dataset/OrgulhoePreconceito.txt /mapred
+
+O arquivo é um livro baixado gratuitamente para usar da seguinte maneira:
+Devemos identificar no resultado quantas vezes a mesma palavra aparece durante todo o conteudo do livro.
+
+Feito o procedimento de copiar o arquivo para o HDFS devemos executar o seguinte comando:
+
+Iremos usar o arquivo qe esta no diretório Analitics
+[hadoop@dataserver Analytics]$ python MR-DataMining-3.py hdfs:///mapred/OrgulhoePreconceito.txt -r hadoop
+
+Esse arquivo MR-DataMining-3.py irá executar todo o procedimento de MapReduce que precisamos.
