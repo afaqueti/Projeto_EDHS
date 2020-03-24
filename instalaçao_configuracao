@@ -1593,42 +1593,60 @@ Importante apontar que quando for mover um arquivo dentro do hdfs devemos usar o
 =============================================================
 Parametrizando o hdfs
 
-Por padrão o hdfs usa o diretório /tmp/hadoop-hadoop/dfs
+Por padrão o hdfs usa o diretório /tmp/hadoop-hadoop/dfs, portanto não é procedimento deixar 
+os arquivos do hdfs dentro do diretório TMP, pois é um diretŕio temporario onde de tempo em 
+tempos esse são excluidos.
+
+Portanto podemos usar o procedimento abaixo para executar as devidas configurações para 
+parametrizar o hdfs.
 
 # Cria os diretórios abaixo
 
 mkdir /opt/hadoop/dfs
-mkdir /opt/hadoop/dfs/data
-mkdir /opt/hadoop/dfs/namespace_logs
+mkdir /opt/hadoop/dfs/data - Esse diretório irá guardar os dados do datanode
+mkdir /opt/hadoop/dfs/namespace_logs --- Esse diretório irá guardar os metadados do namenods
+
+Como estamos em um piseudocluster devemos saber o namespace_logs ficará no namenode e o  data 
+será criado em todos os cluster conforme ecosistema hadoop.
 
 
 # Editar o arquivo $HADOOP_HOME/etc/hadoop/hdfs-site.xml e adicionar as linhas:
 
+	Esse parametro abaixo será definido somente no namenode, caso sendo um multicluster
+    
     <property>
       <name>dfs.namenode.name.dir</name>
       <value>file:/opt/hadoop/dfs/namespace_logs</value>
     </property>
 
+    Esse abaixo deve ser gerado dentro de todos os cluster datanode
     <property>
       <name>dfs.datanode.data.dir</name>
       <value>file:/opt/hadoop/dfs/data</value>
     </property>
 
+    Lembrando que os parametros devem ficar dentro da tag <configuration></configuration>
+
 Lembrando que estamos dentro de um pseudo cluster .... poratnto se tivemos outras maquina cada parametro deve estar dentro da sua devida maquian datanode e namenode, 
+
+Caso seja necessário apagar os dados do arquivo tmp segue o comando:
+$ sudo rm -rf * ----Esse comando irá linpara todos os ados dentro do arquivo tmp.
 
 =============================================================
 
 Verificando status do banco de dados relacionnal MYSQL SEVER
 
-$ sudo  systemctl status mysqld
-
 Iniciar o serviço:
 $ sudo systemctl start mysqld
+$ sudo  systemctl status mysqld
 Iniciando o processo o serviço deve estar como actve(running)
 
 Para acessar o shel devemos executar o seguinte comando:
 mysql -u root -p
 Password = Pingo@@@1 
+
+Para sair do shell mysql execute;
+mysql> exit
 
 =============================================================
 Conectando Mysql no Hadoop.
@@ -1668,6 +1686,8 @@ O apche SQOOP é uma ferramenta ETL essa ferramenta ira pegar os dados o banco S
 usamos o seguinte comando para acessar o banco de dados:
 sqoop list-databases --connect jdbc:mysql://localhost:3306/ --username root -P
 
+sqoop list-databases --connect jdbc:mysql://localhost:3306/testedb --username root -password Pingo@@@1 --table empregados --m 1
+
 Erro: Não foi possível localizar nem carregar a classe principal org.apache.hadoop.hbase.util.GetJavaProperty
 
 Conforme informações da equipe Datascience, esse erro é devido a não atualização de uma biblioteca, pois o apache sqoop não suporta a versão do hadoop apache 3. ou superior.
@@ -1692,6 +1712,8 @@ Devemos copiar o arquivos que fica dentro do diretorio commons-lang-2.6
 commons-lang-2.6.jar para o diretorio /lib do sqoop com o seguinte comando:
 $ cp commons-lang-2.6.jar /opt/sqoop/lib/
 
+
+Erroo timezone
 $ sqoop list-databases --connect jdbc:mysql://localhost:3306/?serverTimezone=UTC --username root -P
 
 Comando para executar o import:
@@ -1752,6 +1774,11 @@ Executando MapReduce com Python
 
 Primeiro vamos usar alguns exemplos:
 
+Caso necessário dar permissão para usuário De root para usuário local segue o comando:
+chown -R hadoop:hadoop *.* 
+em caso de arquivos .py segue
+chown -R hadoop:hadoop *.py
+
 Dentro do diretório Datasets temos divesos datasets de exemplo, esse denvem ser copiados para o HDFS
 
 $ hdfs dfs -put Dataset/OrgulhoePreconceito.txt /mapred
@@ -1765,3 +1792,7 @@ Iremos usar o arquivo qe esta no diretório Analitics
 [hadoop@dataserver Analytics]$ python MR-DataMining-3.py hdfs:///mapred/OrgulhoePreconceito.txt -r hadoop
 
 Esse arquivo MR-DataMining-3.py irá executar todo o procedimento de MapReduce que precisamos.
+
+Comando administrador para extrair relatorios do hdfs
+
+$ dhfs dfsadmin -report
